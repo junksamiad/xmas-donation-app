@@ -29,11 +29,32 @@ interface ChildData {
   giftIdeas: string;
 }
 
+// Avatar images for diversity
+const GIRL_AVATARS = ['/girl.png', '/girl-asian.png', '/girl-black.png'];
+const BOY_AVATARS = ['/boy.png', '/boy-asian.png', '/boy-black.png'];
+
+// Button images
+const ANY_CHILD_IMAGES = ['/boy-girl-together.png', '/boy-girl-together-alt.png', '/boy-girl-together-alt-2.png'];
+
+// Function to get random avatar based on gender
+const getRandomAvatar = (gender: string): string => {
+  const avatars = gender === 'male' ? BOY_AVATARS : GIRL_AVATARS;
+  const randomIndex = Math.floor(Math.random() * avatars.length);
+  return avatars[randomIndex];
+};
+
+// Function to get random item from array
+const getRandomFromArray = (array: string[]): string => {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+};
+
 export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [currentScreen, setCurrentScreen] = useState<ModalScreen>('selection');
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [selectedAge, setSelectedAge] = useState<string>('');
   const [selectedChild, setSelectedChild] = useState<ChildData | null>(null);
+  const [childAvatar, setChildAvatar] = useState<string>('');
   const [donationType, setDonationType] = useState<'gift' | 'cash' | null>(null);
   const [donorName, setDonorName] = useState<string>('');
   const [donorEmail, setDonorEmail] = useState<string>('');
@@ -43,6 +64,16 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState<boolean>(false);
   const [isSubmittingDonation, setIsSubmittingDonation] = useState<boolean>(false);
+  const [anyChildButtonImage, setAnyChildButtonImage] = useState<string>(ANY_CHILD_IMAGES[0]);
+  const [chooseChildButtonImage, setChooseChildButtonImage] = useState<string>(GIRL_AVATARS[0]);
+
+  // Randomly select button images when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setAnyChildButtonImage(getRandomFromArray(ANY_CHILD_IMAGES));
+      setChooseChildButtonImage(getRandomFromArray(GIRL_AVATARS));
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setCurrentScreen('selection');
@@ -95,27 +126,28 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
             onClick={handleClose}
           />
 
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-end pr-36">
+          {/* Modal - Centered on mobile, right-aligned on desktop */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center lg:justify-end lg:pr-36 p-4 lg:p-0">
             <motion.div
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="relative rounded-3xl p-1"
+              className="relative rounded-3xl p-1 w-full lg:w-[576px]"
               style={{
-                width: '576px', // Fixed width (equivalent to max-w-xl)
                 background: 'linear-gradient(135deg, #DC2626 0%, #059669 50%, #DC2626 100%)',
+                maxWidth: '576px', // Max width on all screens
               }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Inner modal with gradient background */}
               <div
-                className="relative rounded-3xl p-8 md:p-10 flex flex-col overflow-hidden"
+                className="relative rounded-3xl p-6 md:p-8 lg:p-10 flex flex-col overflow-hidden"
                 style={{
                   background: 'linear-gradient(to bottom, #1e293b, #0f172a)',
                   boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.5)',
-                  height: '800px'
+                  height: '800px',
+                  maxHeight: 'calc(100vh - 2rem)' // Ensure it fits on mobile with padding
                 }}
               >
                 {/* Close Button */}
@@ -135,7 +167,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           animate={{
                             backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                           }}
@@ -171,6 +203,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                         if (result.success) {
                           setSelectedChild(result.data);
+                          setChildAvatar(getRandomAvatar(result.data.gender));
                           setCurrentScreen('child-details');
                         } else {
                           toast.error(result.error);
@@ -198,7 +231,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                       <div className="relative z-10 flex flex-col items-center gap-3">
                         <Image
-                          src="/boy-girl-together.png"
+                          src={anyChildButtonImage}
                           alt="Children"
                           width={80}
                           height={80}
@@ -236,7 +269,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                       <div className="relative z-10 flex flex-col items-center gap-3">
                         <Image
-                          src="/girl.png"
+                          src={chooseChildButtonImage}
                           alt="Child"
                           width={80}
                           height={80}
@@ -255,7 +288,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           style={{
                             backgroundSize: '200% 200%'
                           }}
@@ -321,6 +354,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                               if (result.success) {
                                 setSelectedChild(result.data);
+                                setChildAvatar(getRandomAvatar(result.data.gender));
                                 setCurrentScreen('child-details');
                               } else {
                                 toast.error(result.error);
@@ -344,6 +378,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                               if (result.success) {
                                 setSelectedChild(result.data);
+                                setChildAvatar(getRandomAvatar(result.data.gender));
                                 setCurrentScreen('child-details');
                               } else {
                                 toast.error(result.error);
@@ -389,7 +424,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center flex flex-col items-center">
                         <Image
-                          src={selectedChild.gender === 'male' ? '/boy.png' : '/girl.png'}
+                          src={childAvatar}
                           alt={selectedChild.gender === 'male' ? 'Boy' : 'Girl'}
                           width={120}
                           height={120}
@@ -500,7 +535,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           style={{
                             backgroundSize: '200% 200%'
                           }}

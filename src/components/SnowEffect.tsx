@@ -17,8 +17,12 @@ const SnowEffect = () => {
 
   useEffect(() => {
     const generateSnowflakes = () => {
+      // Mobile: 20 snowflakes, Desktop: 50 snowflakes
+      const isMobile = window.innerWidth < 1024;
+      const snowflakeCount = isMobile ? 20 : 50;
+
       const flakes: Snowflake[] = [];
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < snowflakeCount; i++) {
         flakes.push({
           id: i,
           x: Math.random() * 100,
@@ -31,6 +35,12 @@ const SnowEffect = () => {
     };
 
     generateSnowflakes();
+
+    // Regenerate on window resize to adapt to screen size changes
+    const handleResize = () => generateSnowflakes();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
