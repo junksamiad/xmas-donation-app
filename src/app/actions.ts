@@ -266,3 +266,39 @@ export async function getUnassignedChildrenCount(): Promise<
     }
   }
 }
+
+/**
+ * Get latest donation for ticker display
+ */
+export async function getLatestDonation(): Promise<
+  ServerActionResult<{
+    donorName: string
+    departmentName: string
+    donationType: 'gift' | 'cash'
+    amount: number | null
+    createdAt: Date
+    minutesAgo: number
+  } | null>
+> {
+  try {
+    const latest = await donationService.getLatest()
+
+    if (!latest) {
+      return {
+        success: true,
+        data: null,
+      }
+    }
+
+    return {
+      success: true,
+      data: latest,
+    }
+  } catch (error) {
+    console.error('Error in getLatestDonation:', error)
+    return {
+      success: false,
+      error: 'Failed to get latest donation.',
+    }
+  }
+}

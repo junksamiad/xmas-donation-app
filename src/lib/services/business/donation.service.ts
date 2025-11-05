@@ -183,6 +183,47 @@ export class DonationService {
         : 0,
     }
   }
+
+  /**
+   * Get latest donation for ticker display
+   */
+  async getLatest(): Promise<{
+    donorName: string
+    departmentName: string
+    donationType: 'gift' | 'cash'
+    amount: number | null
+    createdAt: Date
+    minutesAgo: number
+  } | null> {
+    const latest = await this.db.donation.findFirst({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        donorName: true,
+        departmentName: true,
+        donationType: true,
+        amount: true,
+        createdAt: true,
+      },
+    })
+
+    if (!latest) {
+      return null
+    }
+
+    const now = new Date()
+    const minutesAgo = Math.floor(
+      (now.getTime() - latest.createdAt.getTime()) / 1000 / 60
+    )
+
+    return {
+      donorName: latest.donorName,
+      departmentName: latest.departmentName,
+      donationType: latest.donationType as 'gift' | 'cash',
+      amount: latest.amount ? Number(latest.amount) : null,
+      createdAt: latest.createdAt,
+      minutesAgo,
+    }
+  }
 }
 
 // Singleton export pattern

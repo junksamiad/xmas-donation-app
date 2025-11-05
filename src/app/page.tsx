@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 
 import DonationModal from '@/components/DonationModal';
 import SnowEffect from '@/components/SnowEffect';
+import StatsTickerBanner from '@/components/StatsTickerBanner';
 
 interface SantaSleigh {
   delay: number;
@@ -148,6 +149,11 @@ export default function Home() {
           className="object-cover"
           priority
         />
+      </div>
+
+      {/* Stats Ticker Banner - Between window frame and tree */}
+      <div className="absolute top-4 left-0 right-0 pointer-events-none" style={{ zIndex: 46 }}>
+        <StatsTickerBanner />
       </div>
 
       {/* Christmas Tree - Inside the room with us (no labels) */}
