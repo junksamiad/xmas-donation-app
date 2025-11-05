@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import Image from 'next/image';
 
@@ -35,9 +35,12 @@ export default function Home() {
   }));
 
   // Generate Santa sleighs on client-side only to avoid hydration mismatch
-  const [santas, setSantas] = useState<SantaSleigh[]>([]);
+  const [santas] = useState<SantaSleigh[]>(() => {
+    // Only generate positions on client-side
+    if (typeof window === 'undefined') {
+      return [];
+    }
 
-  useEffect(() => {
     // Define different direction pattern generators
     const directionGenerators = [
       // Top-left to bottom-right
@@ -66,11 +69,11 @@ export default function Home() {
       }),
     ];
 
-    setSantas([...Array(3)].map((_, i) => ({
+    return [...Array(3)].map((_, i) => ({
       delay: i * 6 + Math.random() * 3,
       direction: directionGenerators[i % directionGenerators.length]()
-    })));
-  }, []);
+    }));
+  });
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
@@ -239,7 +242,7 @@ export default function Home() {
           alt="Donate Now"
           width={250}
           height={125}
-          className="object-contain w-[125px] h-[65px] lg:w-[250px] lg:h-[125px]"
+          className="object-contain"
           unoptimized
         />
       </motion.div>
