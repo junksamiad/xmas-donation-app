@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import Image from 'next/image';
 
@@ -33,11 +33,20 @@ interface ChildData {
 const GIRL_AVATARS = ['/girl.png', '/girl-asian.png', '/girl-black.png'];
 const BOY_AVATARS = ['/boy.png', '/boy-asian.png', '/boy-black.png'];
 
+// Button images
+const ANY_CHILD_IMAGES = ['/boy-girl-together.png', '/boy-girl-together-alt.png', '/boy-girl-together-alt-2.png'];
+
 // Function to get random avatar based on gender
 const getRandomAvatar = (gender: string): string => {
   const avatars = gender === 'male' ? BOY_AVATARS : GIRL_AVATARS;
   const randomIndex = Math.floor(Math.random() * avatars.length);
   return avatars[randomIndex];
+};
+
+// Function to get random item from array
+const getRandomFromArray = (array: string[]): string => {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
 };
 
 export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
@@ -55,6 +64,10 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState<boolean>(false);
   const [isSubmittingDonation, setIsSubmittingDonation] = useState<boolean>(false);
+
+  // Randomly select button images when modal opens
+  const anyChildButtonImage = useMemo(() => getRandomFromArray(ANY_CHILD_IMAGES), [isOpen]);
+  const chooseChildButtonImage = useMemo(() => getRandomFromArray(GIRL_AVATARS), [isOpen]);
 
   const handleClose = () => {
     setCurrentScreen('selection');
@@ -212,7 +225,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                       <div className="relative z-10 flex flex-col items-center gap-3">
                         <Image
-                          src="/boy-girl-together.png"
+                          src={anyChildButtonImage}
                           alt="Children"
                           width={80}
                           height={80}
@@ -250,7 +263,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
 
                       <div className="relative z-10 flex flex-col items-center gap-3">
                         <Image
-                          src="/girl.png"
+                          src={chooseChildButtonImage}
                           alt="Child"
                           width={80}
                           height={80}
