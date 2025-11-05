@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
 import { TrendingUp, Gift, Users, DollarSign } from 'lucide-react';
+import CountUp from 'react-countup';
 
 interface StatCardProps {
   value: number | string;

@@ -1,10 +1,12 @@
 'use client';
 
-import VillageHero from '@/components/VillageHero';
-import StatsDashboard from '@/components/StatsDashboard';
+import { Toaster } from 'react-hot-toast';
+
 import EnhancedDepartmentLeaderboard from '@/components/EnhancedDepartmentLeaderboard';
 import SnowEffect from '@/components/SnowEffect';
-import toast, { Toaster } from 'react-hot-toast';
+import StatsDashboard from '@/components/StatsDashboard';
+import VillageHero from '@/components/VillageHero';
+
 
 const VillagePage = () => {
   return (

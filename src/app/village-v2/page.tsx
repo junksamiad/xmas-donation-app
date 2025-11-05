@@ -1,7 +1,7 @@
-import WarmHero from '@/components/WarmHero'
-import GentleProgress from '@/components/GentleProgress'
 import FriendlyTeams from '@/components/FriendlyTeams'
+import GentleProgress from '@/components/GentleProgress'
 import HeartStories from '@/components/HeartStories'
+import WarmHero from '@/components/WarmHero'
 
 export default function VillageV2() {
   return (

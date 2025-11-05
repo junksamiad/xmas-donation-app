@@ -1,10 +1,13 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useState } from 'react';
+
 import Image from 'next/image';
-import SnowEffect from '@/components/SnowEffect';
+
+import { motion } from 'framer-motion';
+
 import DepartmentLeaderboard from '@/components/DepartmentLeaderboard';
+import SnowEffect from '@/components/SnowEffect';
 import StatsBar from '@/components/StatsBar';
 
 const ChristmasPage = () => {

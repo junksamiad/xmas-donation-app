@@ -11,12 +11,35 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Department {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  donations Donation[]
+
+  @@index([active])
+}
+
+model GiftIdea {
+  id        String   @id @default(cuid())
+  age       Int
+  gender    String   // 'male', 'female'
+  giftIdeas String[] // Array of gift idea strings
+  category  String?  // Optional: 'special_needs', 'sports', 'tech', etc.
+  createdAt DateTime @default(now())
+
+  @@unique([age, gender, category])
+  @@index([age, gender])
+}
+
 model Child {
   id         String     @id @default(cuid())
   recipient  String
   age        Int
   gender     String
   giftIdeas  String     @db.Text
+  category   String?    // Links to GiftIdea.category for specific matching
   priority   Boolean    @default(false)
   assigned   Boolean    @default(false)
   createdAt  DateTime   @default(now())
@@ -25,21 +48,23 @@ model Child {
 
   @@index([assigned])
   @@index([gender, age])
+  @@index([category])
 }
 
 model Donation {
-  id           String   @id @default(cuid())
-  childId      String
-  child        Child    @relation(fields: [childId], references: [id])
-  donorName    String
-  department   String
-  donationType String   // 'gift' or 'cash'
-  amount       Decimal? @db.Decimal(10, 2)
-  createdAt    DateTime @default(now())
+  id             String     @id @default(cuid())
+  childId        String
+  child          Child      @relation(fields: [childId], references: [id])
+  childName      String     // Denormalized from Child.recipient
+  donorName      String
+  departmentId   String
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentName String     // Denormalized from Department.name
+  donationType   String     // 'gift' or 'cash'
+  amount         Decimal?   @db.Decimal(10, 2)
+  createdAt      DateTime   @default(now())
 
-  @@index([department])
+  @@index([departmentId])
   @@index([createdAt])
+  @@index([childId])
 }
-
-// View for department statistics (we'll handle this in queries)
-// Since Prisma doesn't support views directly, we'll use raw queries or aggregations

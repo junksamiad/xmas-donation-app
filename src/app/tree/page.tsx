@@ -1,10 +1,12 @@
 'use client';
 
-import SnowEffect from '@/components/SnowEffect';
+import toast, { Toaster } from 'react-hot-toast';
+
 import DepartmentLeaderboard from '@/components/DepartmentLeaderboard';
+import SnowEffect from '@/components/SnowEffect';
 import StatsBar from '@/components/StatsBar';
 import { Button as MovingBorderButton } from '@/components/ui/moving-border';
-import toast, { Toaster } from 'react-hot-toast';
+
 
 const TreePage = () => {
   const handlePresentClick = () => {

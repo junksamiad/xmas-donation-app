@@ -24,7 +24,7 @@ export default function FriendlyTeams() {
         </div>
 
         <div className="space-y-4 mb-8">
-          {teams.map((team, index) => (
+          {teams.map((team, _index) => (
             <div
               key={team.name}
               className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
