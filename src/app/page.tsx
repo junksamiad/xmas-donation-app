@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 
@@ -35,7 +35,9 @@ export default function Home() {
   }));
 
   // Generate Santa sleighs on client-side only to avoid hydration mismatch
-  const [santas] = useState<SantaSleigh[]>(() => {
+  const [santas, setSantas] = useState<SantaSleigh[]>([]);
+
+  useEffect(() => {
     // Define different direction pattern generators
     const directionGenerators = [
       // Top-left to bottom-right
@@ -64,11 +66,11 @@ export default function Home() {
       }),
     ];
 
-    return [...Array(3)].map((_, i) => ({
+    setSantas([...Array(3)].map((_, i) => ({
       delay: i * 6 + Math.random() * 3,
       direction: directionGenerators[i % directionGenerators.length]()
-    }));
-  });
+    })));
+  }, []);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
