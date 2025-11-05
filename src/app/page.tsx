@@ -1,10 +1,13 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+
 import Image from 'next/image';
-import SnowEffect from '@/components/SnowEffect';
+
+import { motion } from 'framer-motion';
+
 import DonationModal from '@/components/DonationModal';
+import SnowEffect from '@/components/SnowEffect';
 
 interface SantaSleigh {
   delay: number;
@@ -112,7 +115,7 @@ export default function Home() {
               duration: 3,
               delay: santa.delay,
               repeat: Infinity,
-              repeatDelay: 30,
+              repeatDelay: 15,
               ease: 'linear',
             }}
           >
@@ -148,7 +151,22 @@ export default function Home() {
       </div>
 
       {/* Christmas Tree - Inside the room with us (no labels) */}
-      <div className="absolute left-2 bottom-0 pointer-events-none" style={{ zIndex: 48 }}>
+      <motion.div
+        className="absolute left-2 bottom-0 pointer-events-none"
+        style={{ zIndex: 48 }}
+        animate={{
+          filter: [
+            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))',
+            'drop-shadow(0 0 16px rgba(255, 215, 0, 0.5))',
+            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))'
+          ]
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: 'easeInOut'
+        }}
+      >
         <Image
           src="/tree-no-labels.png"
           alt="Christmas tree"
@@ -156,33 +174,40 @@ export default function Home() {
           height={900}
           className="object-contain"
         />
-      </div>
+      </motion.div>
 
       {/* Donate Now Label - Pulsing CTA on Tree */}
       <motion.div
-        className="absolute cursor-pointer"
+        className="absolute"
         style={{
           left: '480px',
           bottom: '20px',
           zIndex: 49,
-          rotate: -22
+          rotate: -22,
+          cursor: isModalOpen ? 'default' : 'pointer',
+          filter: isModalOpen ? 'blur(2px)' : 'none',
+          opacity: isModalOpen ? 0.5 : 1
         }}
-        animate={{
+        animate={!isModalOpen ? {
           scale: [1, 1.08, 1],
           filter: [
-            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))',
-            'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
-            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
+            'blur(0px) drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))',
+            'blur(0px) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
+            'blur(0px) drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
           ]
+        } : {
+          scale: 1
         }}
-        transition={{
+        transition={!isModalOpen ? {
           duration: 2,
           repeat: Infinity,
           ease: 'easeInOut'
+        } : {
+          duration: 0.3
         }}
-        onClick={() => setIsModalOpen(true)}
-        whileHover={{ scale: 1.15 }}
-        whileTap={{ scale: 0.95 }}
+        onClick={() => !isModalOpen && setIsModalOpen(true)}
+        whileHover={!isModalOpen ? { scale: 1.15 } : {}}
+        whileTap={!isModalOpen ? { scale: 0.95 } : {}}
       >
         <Image
           src="/donate-label-1.png"

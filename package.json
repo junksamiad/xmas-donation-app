@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack -p 3007",
     "build": "next build --turbopack",
     "start": "next start",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed-children": "tsx prisma/seed-children.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -30,6 +31,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint-config-next": "^16.0.1",
+    "eslint-plugin-import-x": "^4.16.1",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"
