@@ -6,7 +6,7 @@ import Image from 'next/image';
 import SnowEffect from '@/components/SnowEffect';
 import DonationModal from '@/components/DonationModal';
 
-interface ShootingStar {
+interface SantaSleigh {
   delay: number;
   direction: {
     startX: number;
@@ -27,8 +27,8 @@ export default function Home() {
     delay: (i * 0.7) % 2
   }));
 
-  // Generate shooting stars on client-side only to avoid hydration mismatch
-  const [shootingStars, setShootingStars] = useState<ShootingStar[]>([]);
+  // Generate Santa sleighs on client-side only to avoid hydration mismatch
+  const [santas, setSantas] = useState<SantaSleigh[]>([]);
 
   useEffect(() => {
     // Define different direction pattern generators
@@ -59,12 +59,12 @@ export default function Home() {
       }),
     ];
 
-    const stars = [...Array(3)].map((_, i) => ({
+    const santaSleighs = [...Array(3)].map((_, i) => ({
       delay: i * 6 + Math.random() * 3,
       direction: directionGenerators[i % directionGenerators.length]()
     }));
 
-    setShootingStars(stars);
+    setSantas(santaSleighs);
   }, []);
 
   return (
@@ -92,38 +92,38 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Santa Sleigh */}
+      {/* Santa Sleighs */}
       <div className="absolute inset-0">
-        {shootingStars.map((star, i) => (
+        {santas.map((santa, i) => (
           <motion.div
             key={`santa-${i}`}
             className="absolute"
             initial={{
-              left: `${star.direction.startX}%`,
-              top: `${star.direction.startY}%`,
+              left: `${santa.direction.startX}%`,
+              top: `${santa.direction.startY}%`,
               opacity: 0,
             }}
             animate={{
-              left: `${star.direction.endX}%`,
-              top: `${star.direction.endY}%`,
+              left: `${santa.direction.endX}%`,
+              top: `${santa.direction.endY}%`,
               opacity: [0, 1, 1, 0],
             }}
             transition={{
               duration: 3,
-              delay: star.delay,
+              delay: santa.delay,
               repeat: Infinity,
               repeatDelay: 30,
               ease: 'linear',
             }}
           >
             <Image
-              src="/Santa Claus on Sleigh with Reindeer.png"
+              src="/santa.png"
               alt="Santa on sleigh"
               width={180}
               height={90}
               className="object-contain"
               style={{
-                transform: star.direction.rotation < 0 ? 'scaleX(-1)' : 'none'
+                transform: santa.direction.rotation < 0 ? 'scaleX(-1)' : 'none'
               }}
             />
           </motion.div>
@@ -135,6 +135,64 @@ export default function Home() {
 
       {/* Permanent frosted glass overlay */}
       <div className="fixed inset-0 bg-gray-900/10 backdrop-blur-sm pointer-events-none z-30" />
+
+      {/* Window Frame Overlay - Below Modal and Tree */}
+      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 45 }}>
+        <Image
+          src="/window-frame.png"
+          alt="Window frame"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+
+      {/* Christmas Tree - Inside the room with us (no labels) */}
+      <div className="absolute left-2 bottom-0 pointer-events-none" style={{ zIndex: 48 }}>
+        <Image
+          src="/tree-no-labels.png"
+          alt="Christmas tree"
+          width={600}
+          height={900}
+          className="object-contain"
+        />
+      </div>
+
+      {/* Donate Now Label - Pulsing CTA on Tree */}
+      <motion.div
+        className="absolute cursor-pointer"
+        style={{
+          left: '480px',
+          bottom: '20px',
+          zIndex: 49,
+          rotate: -22
+        }}
+        animate={{
+          scale: [1, 1.08, 1],
+          filter: [
+            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))',
+            'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
+            'drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
+          ]
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: 'easeInOut'
+        }}
+        onClick={() => setIsModalOpen(true)}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Image
+          src="/donate-label-1.png"
+          alt="Donate Now"
+          width={250}
+          height={125}
+          className="object-contain"
+          unoptimized
+        />
+      </motion.div>
 
       {/* Modal */}
       <DonationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
