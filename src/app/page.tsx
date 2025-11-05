@@ -23,12 +23,15 @@ interface SantaSleigh {
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Generate deterministic positions for stars based on index
+  // Mobile: 20 stars, Desktop: 50 stars
   const starPositions = [...Array(50)].map((_, i) => ({
     left: `${(i * 37) % 100}%`,
     top: `${(i * 61) % 100}%`,
     duration: 2 + ((i * 3) % 3),
-    delay: (i * 0.7) % 2
+    delay: (i * 0.7) % 2,
+    mobileOnly: i >= 20 // Hide these on mobile
   }));
 
   // Generate Santa sleighs on client-side only to avoid hydration mismatch
@@ -69,12 +72,12 @@ export default function Home() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
-      {/* Starry Background */}
+      {/* Starry Background - Reduced count on mobile */}
       <div className="absolute inset-0">
         {starPositions.map((pos, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-yellow-200 rounded-full"
+            className={`absolute w-1 h-1 bg-yellow-200 rounded-full ${pos.mobileOnly ? 'hidden lg:block' : ''}`}
             style={{
               left: pos.left,
               top: pos.top,
@@ -92,8 +95,8 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Santa Sleighs */}
-      <div className="absolute inset-0">
+      {/* Santa Sleighs - Desktop only */}
+      <div className="absolute inset-0 hidden lg:block">
         {santas.map((santa, i) => (
           <motion.div
             key={`santa-${i}`}
@@ -136,8 +139,8 @@ export default function Home() {
       {/* Permanent frosted glass overlay */}
       <div className="fixed inset-0 bg-gray-900/10 backdrop-blur-sm pointer-events-none z-30" />
 
-      {/* Window Frame Overlay - Below Modal and Tree */}
-      <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 45 }}>
+      {/* Window Frame Overlay - Below Modal and Tree - Desktop only */}
+      <div className="fixed inset-0 pointer-events-none hidden lg:block" style={{ zIndex: 45 }}>
         <Image
           src="/window-frame.png"
           alt="Window frame"
@@ -173,9 +176,9 @@ export default function Home() {
         />
       </div> */}
 
-      {/* Christmas Tree - Inside the room with us (no labels) */}
+      {/* Christmas Tree - Inside the room with us (no labels) - Responsive */}
       <motion.div
-        className="absolute left-2 bottom-0 pointer-events-none"
+        className="absolute left-2 bottom-0 pointer-events-none w-[300px] h-[450px] lg:w-[600px] lg:h-[900px]"
         style={{ zIndex: 48 }}
         animate={{
           filter: [
@@ -193,18 +196,15 @@ export default function Home() {
         <Image
           src="/tree-no-labels.png"
           alt="Christmas tree"
-          width={600}
-          height={900}
+          fill
           className="object-contain"
         />
       </motion.div>
 
-      {/* Donate Now Label - Pulsing CTA on Tree */}
+      {/* Donate Now Label - Pulsing CTA on Tree - Responsive */}
       <motion.div
-        className="absolute"
+        className="absolute left-[240px] bottom-[10px] lg:left-[480px] lg:bottom-[20px]"
         style={{
-          left: '480px',
-          bottom: '20px',
           zIndex: 49,
           rotate: -22,
           cursor: isModalOpen ? 'default' : 'pointer',
@@ -237,14 +237,14 @@ export default function Home() {
           alt="Donate Now"
           width={250}
           height={125}
-          className="object-contain"
+          className="object-contain w-[125px] h-[65px] lg:w-[250px] lg:h-[125px]"
           unoptimized
         />
       </motion.div>
 
-      {/* Christmas Campaign Banner - Positioned where modal will appear */}
+      {/* Christmas Campaign Banner - Positioned where modal will appear - Desktop only */}
       {!isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-end pr-4 pointer-events-none" style={{ zIndex: 48, marginTop: '-250px' }}>
+        <div className="fixed inset-0 flex items-center justify-end pr-4 pointer-events-none hidden lg:flex" style={{ zIndex: 48, marginTop: '-250px' }}>
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{

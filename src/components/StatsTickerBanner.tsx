@@ -153,9 +153,9 @@ export default function StatsTickerBanner() {
   if (isLoading || stats.length === 0) {
     return (
       <div className="relative w-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 border-y-4 border-black overflow-hidden shadow-lg">
-        <div className="relative h-14 flex items-center px-6">
+        <div className="relative h-10 md:h-14 flex items-center px-4 md:px-6">
           <motion.div
-            className="flex items-center gap-3 text-black/50 font-bold text-lg"
+            className="flex items-center gap-3 text-black/50 font-bold text-sm md:text-lg"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
@@ -179,8 +179,8 @@ export default function StatsTickerBanner() {
 
   return (
     <div className="relative w-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 border-y-4 border-black overflow-hidden shadow-lg">
-      {/* Top star row */}
-      <div className="w-full py-1 px-2">
+      {/* Top star row - Hidden on mobile */}
+      <div className="w-full py-1 px-2 hidden md:block">
         <div className="flex justify-around text-black/60 text-sm">
           {Array.from({ length: 30 }).map((_, i) => {
             const stars = ['✦', '✧', '★'];
@@ -192,7 +192,7 @@ export default function StatsTickerBanner() {
       <div className="relative flex items-center py-1">
         {/* Scrolling container */}
         <motion.div
-          className="flex gap-12 whitespace-nowrap"
+          className="flex gap-6 lg:gap-12 whitespace-nowrap"
           animate={{
             x: ['0%', '-50%'],
           }}
@@ -206,7 +206,7 @@ export default function StatsTickerBanner() {
           {duplicatedStats.map((stat, index) => (
             <div
               key={`${stat.id}-${index}`}
-              className="flex items-center gap-8 text-black font-bold text-lg"
+              className="flex items-center gap-4 lg:gap-8 text-black font-bold text-sm lg:text-lg"
             >
               <span
                 className="tracking-wide uppercase font-mono"
@@ -225,8 +225,8 @@ export default function StatsTickerBanner() {
         </motion.div>
       </div>
 
-      {/* Bottom star row */}
-      <div className="w-full py-1 px-2">
+      {/* Bottom star row - Hidden on mobile */}
+      <div className="w-full py-1 px-2 hidden md:block">
         <div className="flex justify-around text-black/60 text-sm">
           {Array.from({ length: 30 }).map((_, i) => {
             const stars = ['★', '✦', '✧'];
