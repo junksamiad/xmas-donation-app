@@ -44,3 +44,6 @@ next-env.d.ts
 /prisma/migrations/dev/
 /src/generated/prisma
 node_modules
+
+# scripts with credentials
+/scripts/
