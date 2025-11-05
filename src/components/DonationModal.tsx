@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 
@@ -64,10 +64,16 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoadingDepartments, setIsLoadingDepartments] = useState<boolean>(false);
   const [isSubmittingDonation, setIsSubmittingDonation] = useState<boolean>(false);
+  const [anyChildButtonImage, setAnyChildButtonImage] = useState<string>(ANY_CHILD_IMAGES[0]);
+  const [chooseChildButtonImage, setChooseChildButtonImage] = useState<string>(GIRL_AVATARS[0]);
 
   // Randomly select button images when modal opens
-  const anyChildButtonImage = useMemo(() => getRandomFromArray(ANY_CHILD_IMAGES), [isOpen]);
-  const chooseChildButtonImage = useMemo(() => getRandomFromArray(GIRL_AVATARS), [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      setAnyChildButtonImage(getRandomFromArray(ANY_CHILD_IMAGES));
+      setChooseChildButtonImage(getRandomFromArray(GIRL_AVATARS));
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setCurrentScreen('selection');
