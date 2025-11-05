@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import Image from 'next/image';
 
@@ -32,9 +32,7 @@ export default function Home() {
   }));
 
   // Generate Santa sleighs on client-side only to avoid hydration mismatch
-  const [santas, setSantas] = useState<SantaSleigh[]>([]);
-
-  useEffect(() => {
+  const [santas] = useState<SantaSleigh[]>(() => {
     // Define different direction pattern generators
     const directionGenerators = [
       // Top-left to bottom-right
@@ -63,13 +61,11 @@ export default function Home() {
       }),
     ];
 
-    const santaSleighs = [...Array(3)].map((_, i) => ({
+    return [...Array(3)].map((_, i) => ({
       delay: i * 6 + Math.random() * 3,
       direction: directionGenerators[i % directionGenerators.length]()
     }));
-
-    setSantas(santaSleighs);
-  }, []);
+  });
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
@@ -156,6 +152,27 @@ export default function Home() {
         <StatsTickerBanner />
       </div>
 
+      {/* ANS Logo - Top left corner, vertically centered with banner */}
+      {/* <div
+        className="absolute top-12 left-6 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 px-4 py-2 rounded-sm"
+        style={{ zIndex: 47 }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none opacity-10"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(45deg, black 0, black 2px, transparent 2px, transparent 10px)',
+          }}
+        />
+        <Image
+          src="/ans_logo.png"
+          alt="ANS"
+          width={80}
+          height={40}
+          className="object-contain opacity-90 relative"
+        />
+      </div> */}
+
       {/* Christmas Tree - Inside the room with us (no labels) */}
       <motion.div
         className="absolute left-2 bottom-0 pointer-events-none"
@@ -224,6 +241,49 @@ export default function Home() {
           unoptimized
         />
       </motion.div>
+
+      {/* Christmas Campaign Banner - Positioned where modal will appear */}
+      {!isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-end pr-4 pointer-events-none" style={{ zIndex: 48, marginTop: '-250px' }}>
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              scale: [1, 1.05, 1],
+              filter: [
+                'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))',
+                'drop-shadow(0 0 16px rgba(255, 215, 0, 0.5))',
+                'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))'
+              ]
+            }}
+            transition={{
+              opacity: { duration: 0.5, delay: 0.5 },
+              x: { duration: 0.5, delay: 0.5 },
+              scale: {
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 1
+              },
+              filter: {
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }
+            }}
+            style={{ rotate: '20deg' }}
+          >
+            <Image
+              src="/ans-scroll-banner.png"
+              alt="ANS Christmas Donations Campaign"
+              width={800}
+              height={950}
+              className="object-contain"
+            />
+          </motion.div>
+        </div>
+      )}
 
       {/* Modal */}
       <DonationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

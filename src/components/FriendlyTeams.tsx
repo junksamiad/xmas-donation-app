@@ -68,13 +68,13 @@ export default function FriendlyTeams() {
         {/* Encouraging message */}
         <div className="text-center p-6 bg-blue-50 rounded-2xl border border-blue-200">
           <div className="text-lg font-semibold text-blue-800 mb-2">
-            🤝 Join Your Team's Christmas Spirit!
+            🤝 Join Your Team&apos;s Christmas Spirit!
           </div>
           <div className="text-blue-700">
-            Every gift counts, no matter which team you're on. Together, we're making Christmas magical.
+            Every gift counts, no matter which team you&apos;re on. Together, we&apos;re making Christmas magical.
           </div>
           <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-semibold transition-colors">
-            Add Your Team's Gift
+            Add Your Team&apos;s Gift
           </button>
         </div>
       </div>

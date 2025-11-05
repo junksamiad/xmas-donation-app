@@ -57,6 +57,7 @@ model Donation {
   child          Child      @relation(fields: [childId], references: [id])
   childName      String     // Denormalized from Child.recipient
   donorName      String
+  donorEmail     String?    // Optional work email
   departmentId   String
   department     Department @relation(fields: [departmentId], references: [id])
   departmentName String     // Denormalized from Department.name
@@ -67,4 +68,14 @@ model Donation {
   @@index([departmentId])
   @@index([createdAt])
   @@index([childId])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String   // Hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([username])
 }

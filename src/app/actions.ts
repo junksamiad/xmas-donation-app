@@ -302,3 +302,253 @@ export async function getLatestDonation(): Promise<
     }
   }
 }
+
+/**
+ * Get all donations with full details for admin dashboard
+ */
+export async function getAllDonationsWithDetails(params?: {
+  page?: number
+  pageSize?: number
+  sortBy?: 'date' | 'department'
+}): Promise<
+  ServerActionResult<{
+    donations: Array<{
+      id: string
+      childName: string
+      donorName: string
+      departmentName: string
+      donationType: 'gift' | 'cash'
+      amount: number | null
+      childAge: number
+      childGender: string
+      giftIdeas: string
+      createdAt: Date
+    }>
+    total: number
+    page: number
+    pageSize: number
+    totalPages: number
+  }>
+> {
+  try {
+    const page = params?.page || 1
+    const pageSize = params?.pageSize || 25
+    const skip = (page - 1) * pageSize
+
+    // Build orderBy clause
+    const orderBy =
+      params?.sortBy === 'department'
+        ? [{ departmentName: 'asc' as const }, { createdAt: 'desc' as const }]
+        : [{ createdAt: 'desc' as const }]
+
+    const [donations, total] = await Promise.all([
+      donationService.getAllWithDetails({ skip, take: pageSize, orderBy }),
+      donationService.getTotal(),
+    ])
+
+    return {
+      success: true,
+      data: {
+        donations,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    }
+  } catch (error) {
+    console.error('Error in getAllDonationsWithDetails:', error)
+    return {
+      success: false,
+      error: 'Failed to load donations.',
+    }
+  }
+}
+
+/**
+ * Get gender split statistics
+ */
+export async function getGenderSplit(): Promise<
+  ServerActionResult<{
+    male: number
+    female: number
+    total: number
+  }>
+> {
+  try {
+    const stats = await donationService.getGenderSplit()
+    return {
+      success: true,
+      data: stats,
+    }
+  } catch (error) {
+    console.error('Error in getGenderSplit:', error)
+    return {
+      success: false,
+      error: 'Failed to load gender statistics.',
+    }
+  }
+}
+
+/**
+ * Get age group statistics
+ */
+export async function getAgeGroupSplit(): Promise<
+  ServerActionResult<{
+    ageGroups: Array<{
+      label: string
+      count: number
+      percentage: number
+    }>
+    total: number
+  }>
+> {
+  try {
+    const stats = await donationService.getAgeGroupSplit()
+    return {
+      success: true,
+      data: stats,
+    }
+  } catch (error) {
+    console.error('Error in getAgeGroupSplit:', error)
+    return {
+      success: false,
+      error: 'Failed to load age statistics.',
+    }
+  }
+}
+
+/**
+ * Get department statistics with totals
+ */
+export async function getDepartmentStats(): Promise<
+  ServerActionResult<
+    Array<{
+      name: string
+      donationCount: number
+      totalAmount: number
+      giftCount: number
+      cashCount: number
+    }>
+  >
+> {
+  try {
+    const stats = await donationService.getDepartmentStats()
+    return {
+      success: true,
+      data: stats,
+    }
+  } catch (error) {
+    console.error('Error in getDepartmentStats:', error)
+    return {
+      success: false,
+      error: 'Failed to load department statistics.',
+    }
+  }
+}
+
+/**
+ * Get top donors by cash value
+ */
+export async function getTopDonorsByCash(limit: number = 10): Promise<
+  ServerActionResult<
+    Array<{
+      donorName: string
+      departmentName: string
+      totalCashAmount: number
+      totalDonations: number
+      cashDonations: number
+    }>
+  >
+> {
+  try {
+    const topDonors = await donationService.getTopDonorsByCash(limit)
+    return {
+      success: true,
+      data: topDonors,
+    }
+  } catch (error) {
+    console.error('Error in getTopDonorsByCash:', error)
+    return {
+      success: false,
+      error: 'Failed to load top donors.',
+    }
+  }
+}
+
+/**
+ * Get children progress (assigned vs total)
+ */
+export async function getChildrenProgress(): Promise<
+  ServerActionResult<{
+    assigned: number
+    total: number
+    percentage: number
+  }>
+> {
+  try {
+    const stats = await childService.getProgress()
+    return {
+      success: true,
+      data: stats,
+    }
+  } catch (error) {
+    console.error('Error in getChildrenProgress:', error)
+    return {
+      success: false,
+      error: 'Failed to load children progress.',
+    }
+  }
+}
+
+/**
+ * Get top departments by total donation count (gifts + cash)
+ */
+export async function getTopDepartmentsByCount(limit: number = 3): Promise<
+  ServerActionResult<
+    Array<{
+      name: string
+      totalDonations: number
+      totalCashAmount: number
+    }>
+  >
+> {
+  try {
+    const topDepts = await departmentService.getTopByDonationCount(limit)
+    return {
+      success: true,
+      data: topDepts,
+    }
+  } catch (error) {
+    console.error('Error in getTopDepartmentsByCount:', error)
+    return {
+      success: false,
+      error: 'Failed to load top departments.',
+    }
+  }
+}
+
+/**
+ * Get underperforming demographic groups that need more donations
+ */
+export async function getUnderperformingGroups(): Promise<
+  ServerActionResult<{
+    message: string | null
+    type: 'age' | 'gender' | null
+    group: string | null
+  }>
+> {
+  try {
+    const result = await donationService.getUnderperformingGroups()
+    return {
+      success: true,
+      data: result,
+    }
+  } catch (error) {
+    console.error('Error in getUnderperformingGroups:', error)
+    return {
+      success: false,
+      error: 'Failed to analyze groups.',
+    }
+  }
+}

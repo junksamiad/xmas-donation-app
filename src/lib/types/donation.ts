@@ -14,6 +14,7 @@ export type Donation = Omit<PrismaDonation, 'amount'> & {
 export interface CreateDonationDto {
   childId: string
   donorName: string
+  donorEmail?: string
   departmentId: string
   donationType: 'gift' | 'cash'
   amount?: number  // Required if donationType is 'cash'

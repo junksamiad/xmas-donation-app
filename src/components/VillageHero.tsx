@@ -213,7 +213,7 @@ const VillageHero = () => {
               >
                 🎁
               </motion.span>
-              Light Up a Child's Christmas
+              Light Up a Child&apos;s Christmas
               <motion.span
                 animate={{
                   scale: [1, 1.2, 1],

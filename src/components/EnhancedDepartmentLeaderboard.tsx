@@ -240,7 +240,7 @@ const EnhancedDepartmentLeaderboard = () => {
             🎯 Help Your Team Climb the Leaderboard!
           </h3>
           <p className="text-gray-600 mb-6 max-w-xl mx-auto">
-            Every donation counts toward your department's ranking. Will Marketing maintain their lead,
+            Every donation counts toward your department&apos;s ranking. Will Marketing maintain their lead,
             or will another team surge ahead in the final stretch?
           </p>
 

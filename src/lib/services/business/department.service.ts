@@ -130,6 +130,47 @@ export class DepartmentService {
       data: { active: true },
     })
   }
+
+  /**
+   * Get top departments by total donation count (gifts + cash combined)
+   */
+  async getTopByDonationCount(limit: number = 3): Promise<
+    Array<{
+      name: string
+      totalDonations: number
+      totalCashAmount: number
+    }>
+  > {
+    const departments = await this.db.department.findMany({
+      where: { active: true },
+      include: {
+        donations: {
+          select: {
+            donationType: true,
+            amount: true,
+          },
+        },
+      },
+      orderBy: {
+        donations: {
+          _count: 'desc',
+        },
+      },
+      take: limit,
+    })
+
+    return departments.map((dept) => {
+      const totalCashAmount = dept.donations
+        .filter((d) => d.donationType === 'cash' && d.amount)
+        .reduce((sum, d) => sum + Number(d.amount), 0)
+
+      return {
+        name: dept.name,
+        totalDonations: dept.donations.length,
+        totalCashAmount,
+      }
+    })
+  }
 }
 
 // Singleton export pattern

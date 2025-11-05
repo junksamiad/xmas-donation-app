@@ -36,6 +36,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [selectedChild, setSelectedChild] = useState<ChildData | null>(null);
   const [donationType, setDonationType] = useState<'gift' | 'cash' | null>(null);
   const [donorName, setDonorName] = useState<string>('');
+  const [donorEmail, setDonorEmail] = useState<string>('');
   const [department, setDepartment] = useState<string>('');
   const [donationAmount, setDonationAmount] = useState<string>('');
   const [isLoadingChild, setIsLoadingChild] = useState<boolean>(false);
@@ -50,6 +51,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
     setSelectedChild(null);
     setDonationType(null);
     setDonorName('');
+    setDonorEmail('');
     setDepartment('');
     setDonationAmount('');
     onClose();
@@ -109,10 +111,11 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
             >
               {/* Inner modal with gradient background */}
               <div
-                className="relative rounded-3xl p-8 md:p-10"
+                className="relative rounded-3xl p-8 md:p-10 flex flex-col overflow-hidden"
                 style={{
                   background: 'linear-gradient(to bottom, #1e293b, #0f172a)',
-                  boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.5)'
+                  boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.5)',
+                  height: '800px'
                 }}
               >
                 {/* Close Button */}
@@ -125,7 +128,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                 </button>
 
                 {/* Modal Content */}
-                <div className="space-y-8 relative z-10">
+                <div className="space-y-8 relative z-10 flex-1 flex flex-col justify-center">
                   {/* Selection Screen */}
                   {currentScreen === 'selection' && (
                     <>
@@ -520,10 +523,43 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             type="text"
                             id="donorName"
                             value={donorName}
-                            onChange={(e) => setDonorName(e.target.value)}
-                            placeholder="Enter your name..."
+                            onChange={(e) => {
+                              // Allow only letters, spaces, hyphens, and apostrophes
+                              const value = e.target.value.replace(/[^a-zA-Z\s\-']/g, '');
+                              setDonorName(value);
+                            }}
+                            placeholder="e.g., John Smith or Mary-Jane O'Brien"
                             className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                           />
+                        </div>
+
+                        {/* Email Input (username only) */}
+                        <div>
+                          <label htmlFor="donorEmail" className="block text-sm font-medium text-gray-300 mb-2">
+                            Your Work Email
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              id="donorEmail"
+                              value={donorEmail}
+                              onChange={(e) => {
+                                // Allow only lowercase letters, numbers, dots, and hyphens
+                                const value = e.target.value.toLowerCase().replace(/[^a-z0-9.\-]/g, '');
+                                setDonorEmail(value);
+                              }}
+                              placeholder="e.g., john.smith"
+                              className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                              @ans-group.co.uk
+                            </div>
+                          </div>
+                          {donorEmail && (
+                            <p className="mt-1 text-sm text-gray-400">
+                              Full email: {donorEmail}@ans-group.co.uk
+                            </p>
+                          )}
                         </div>
 
                         {/* Department Dropdown */}
@@ -566,10 +602,45 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             if (isSubmittingDonation) return;
 
                             // Client-side validation
-                            if (!donorName.trim()) {
+                            const trimmedName = donorName.trim();
+
+                            if (!trimmedName) {
                               toast.error('Please enter your name');
                               return;
                             }
+
+                            // Check for at least 2 words (first and last name)
+                            const nameParts = trimmedName.split(/\s+/);
+                            if (nameParts.length < 2) {
+                              toast.error('Please enter your full name (first and last name)');
+                              return;
+                            }
+
+                            // Auto-capitalize each part of the name
+                            const capitalizedName = nameParts
+                              .map(part => {
+                                // Handle hyphenated names (e.g., Mary-Jane, Smith-Jones)
+                                return part.split('-')
+                                  .map(subPart => subPart.charAt(0).toUpperCase() + subPart.slice(1).toLowerCase())
+                                  .join('-');
+                              })
+                              .join(' ');
+
+                            // Validate email username
+                            const trimmedEmail = donorEmail.trim();
+                            if (!trimmedEmail) {
+                              toast.error('Please enter your work email');
+                              return;
+                            }
+
+                            // Basic email username validation (at least 2 characters, valid format)
+                            if (trimmedEmail.length < 2) {
+                              toast.error('Email username must be at least 2 characters');
+                              return;
+                            }
+
+                            // Construct full email
+                            const fullEmail = `${trimmedEmail}@ans-group.co.uk`;
 
                             if (!department) {
                               toast.error('Please select your department');
@@ -590,7 +661,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             setIsSubmittingDonation(true);
                             const result = await createDonation({
                               childId: selectedChild.id,
-                              donorName: donorName.trim(),
+                              donorName: capitalizedName,
+                              donorEmail: fullEmail,
                               departmentId: department,
                               donationType: donationType,
                               amount: donationType === 'cash' ? parseFloat(donationAmount) : undefined

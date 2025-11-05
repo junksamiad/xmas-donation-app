@@ -139,7 +139,7 @@ const StatsDashboard = () => {
                 🎯 Christmas Goal Progress
               </h3>
               <p className="text-gray-600">
-                We're <span className="font-bold text-green-600">72%</span> of the way to bringing Christmas to all 125 children!
+                We&apos;re <span className="font-bold text-green-600">72%</span> of the way to bringing Christmas to all 125 children!
               </p>
             </div>
             <div className="text-right">

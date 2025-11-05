@@ -67,7 +67,7 @@ export default function DonationPopup({ isOpen, onClose }: DonationPopupProps) {
       const child = await response.json();
       setSelectedChild(child);
       setStep('details');
-    } catch (err) {
+    } catch {
       setError('Unable to fetch recipient details. Please try again.');
       setStep('initial');
     }
@@ -92,7 +92,7 @@ export default function DonationPopup({ isOpen, onClose }: DonationPopupProps) {
       const child = await response.json();
       setSelectedChild(child);
       setStep('details');
-    } catch (err) {
+    } catch {
       setError('No matching children found. Please try different criteria.');
       setStep('specify');
     }
@@ -130,7 +130,7 @@ export default function DonationPopup({ isOpen, onClose }: DonationPopupProps) {
       }
 
       setStep('thank-you');
-    } catch (err) {
+    } catch {
       setError('Unable to submit donation. Please try again.');
       setStep('donation-form');
     }
@@ -161,7 +161,7 @@ export default function DonationPopup({ isOpen, onClose }: DonationPopupProps) {
               Choose a Gift Recipient
             </h2>
             <p className="text-gray-600 mb-6 text-center px-4">
-              Select how you'd like to choose your gift recipient
+              Select how you&apos;d like to choose your gift recipient
             </p>
             <div className="flex flex-col md:flex-row justify-center gap-4 mt-auto mb-6 w-full px-4">
               <button

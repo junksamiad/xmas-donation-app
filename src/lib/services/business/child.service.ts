@@ -128,6 +128,24 @@ export class ChildService {
       where: { assigned: false },
     })
   }
+
+  /**
+   * Get children progress (assigned vs total)
+   */
+  async getProgress(): Promise<{
+    assigned: number
+    total: number
+    percentage: number
+  }> {
+    const [assigned, total] = await Promise.all([
+      this.db.child.count({ where: { assigned: true } }),
+      this.db.child.count(),
+    ])
+
+    const percentage = total > 0 ? Math.round((assigned / total) * 100) : 0
+
+    return { assigned, total, percentage }
+  }
 }
 
 // Singleton export pattern

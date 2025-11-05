@@ -25,7 +25,7 @@ export default function GentleProgress() {
           </div>
 
           <div className="text-2xl md:text-3xl font-semibold text-slate-700 mb-4">
-            Together we've helped <span className="text-green-600">{currentHelped}</span> children
+            Together we&apos;ve helped <span className="text-green-600">{currentHelped}</span> children
           </div>
 
           <div className="text-lg md:text-xl text-slate-600 mb-8">
@@ -57,7 +57,7 @@ export default function GentleProgress() {
             🎉 Milestone Reached!
           </div>
           <div className="text-green-700">
-            We've crossed the 75% mark! Christmas magic is spreading through our community.
+            We&apos;ve crossed the 75% mark! Christmas magic is spreading through our community.
           </div>
         </div>
       </div>
