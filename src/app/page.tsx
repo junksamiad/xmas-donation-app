@@ -93,6 +93,44 @@ export default function Home() {
   if (isMobile) {
     return (
       <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
+        {/* Santa Sleighs - Mobile */}
+        <div className="absolute inset-0">
+          {mounted && santas.map((santa, i) => (
+            <motion.div
+              key={`santa-${i}`}
+              className="absolute"
+              initial={{
+                left: `${santa.direction.startX}%`,
+                top: `${santa.direction.startY}%`,
+                opacity: 0,
+              }}
+              animate={{
+                left: `${santa.direction.endX}%`,
+                top: `${santa.direction.endY}%`,
+                opacity: [0, 1, 1, 0],
+              }}
+              transition={{
+                duration: 3,
+                delay: santa.delay,
+                repeat: Infinity,
+                repeatDelay: 15,
+                ease: 'linear',
+              }}
+            >
+              <Image
+                src="/santa.png"
+                alt="Santa on sleigh"
+                width={120}
+                height={60}
+                className="object-contain"
+                style={{
+                  transform: santa.direction.rotation < 0 ? 'scaleX(-1)' : 'none'
+                }}
+              />
+            </motion.div>
+          ))}
+        </div>
+
         {/* Snow Effect */}
         <SnowEffect />
 
@@ -183,16 +221,15 @@ export default function Home() {
           />
         </motion.div>
 
-        {/* ANS Campaign Banner - Top right, smaller */}
+        {/* ANS Campaign Banner - On tree */}
         {!isModalOpen && (
           <motion.div
-            className="fixed top-24 right-4"
-            style={{ zIndex: 48, rotate: '20deg' }}
+            className="absolute left-[-13%] bottom-[24%]"
+            style={{ zIndex: 49, rotate: '-10deg' }}
             initial={{ opacity: 0, x: 50 }}
             animate={{
               opacity: 1,
               x: 0,
-              scale: [1, 1.05, 1],
               filter: [
                 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))',
                 'drop-shadow(0 0 16px rgba(255, 215, 0, 0.5))',
@@ -202,12 +239,6 @@ export default function Home() {
             transition={{
               opacity: { duration: 0.5, delay: 0.5 },
               x: { duration: 0.5, delay: 0.5 },
-              scale: {
-                duration: 2,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: 1
-              },
               filter: {
                 duration: 3,
                 repeat: Infinity,
@@ -218,8 +249,8 @@ export default function Home() {
             <Image
               src="/ans-scroll-banner.png"
               alt="ANS Christmas Campaign"
-              width={250}
-              height={300}
+              width={504}
+              height={606}
               className="object-contain"
             />
           </motion.div>
