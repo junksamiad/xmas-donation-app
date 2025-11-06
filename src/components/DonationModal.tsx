@@ -133,10 +133,10 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 100 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="relative rounded-3xl p-1 w-full lg:w-[576px]"
+              className="relative rounded-3xl p-1 w-full lg:w-[490px]"
               style={{
                 background: 'linear-gradient(135deg, #DC2626 0%, #059669 50%, #DC2626 100%)',
-                maxWidth: '576px', // Max width on all screens
+                maxWidth: '490px', // Max width on all screens
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -146,7 +146,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                 style={{
                   background: 'linear-gradient(to bottom, #1e293b, #0f172a)',
                   boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.5)',
-                  height: '800px',
+                  height: '680px',
                   maxHeight: 'calc(100vh - 2rem)' // Ensure it fits on mobile with padding
                 }}
               >
@@ -160,14 +160,14 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                 </button>
 
                 {/* Modal Content */}
-                <div className="space-y-8 relative z-10 flex-1 flex flex-col justify-center">
+                <div className="space-y-6 relative z-10 flex-1 flex flex-col justify-center">
                   {/* Selection Screen */}
                   {currentScreen === 'selection' && (
                     <>
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           animate={{
                             backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                           }}
@@ -182,13 +182,13 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         >
                           Choose a Gift Recipient
                         </motion.h2>
-                        <p className="mt-3 text-lg text-gray-300">
+                        <p className="mt-2 text-base text-gray-300">
                           Select how you&apos;d like to choose a child to help this Christmas
                         </p>
                       </div>
 
                       {/* Button Options */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     {/* Any Child Button */}
                     <motion.button
                       whileHover={!isLoadingChild ? { scale: 1.05, y: -2 } : {}}
@@ -210,7 +210,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         }
                       }}
                       disabled={isLoadingChild}
-                      className="group relative overflow-hidden text-white font-bold py-8 px-6 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="group relative overflow-hidden text-white font-bold py-6 px-4 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{
                         background: 'linear-gradient(to bottom, #EF4444, #DC2626)',
                         boxShadow: '0 4px 14px rgba(220, 38, 38, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -229,15 +229,15 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         }}
                       />
 
-                      <div className="relative z-10 flex flex-col items-center gap-3">
+                      <div className="relative z-10 flex flex-col items-center gap-2">
                         <Image
                           src={anyChildButtonImage}
                           alt="Children"
-                          width={80}
-                          height={80}
+                          width={65}
+                          height={65}
                           className="object-contain"
                         />
-                        <span className="text-xl">{isLoadingChild ? 'Finding a child...' : 'Any Child'}</span>
+                        <span className="text-lg">{isLoadingChild ? 'Finding a child...' : 'Any Child'}</span>
                       </div>
                     </motion.button>
 
@@ -247,7 +247,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       whileTap={{ scale: 0.98 }}
                       transition={{ duration: 0.1, ease: 'easeOut' }}
                       onClick={() => setCurrentScreen('search')}
-                      className="group relative overflow-hidden text-white font-bold py-8 px-6 rounded-2xl cursor-pointer"
+                      className="group relative overflow-hidden text-white font-bold py-6 px-4 rounded-2xl cursor-pointer"
                       style={{
                         background: 'linear-gradient(to bottom, #10B981, #059669)',
                         boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -267,15 +267,15 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         }}
                       />
 
-                      <div className="relative z-10 flex flex-col items-center gap-3">
+                      <div className="relative z-10 flex flex-col items-center gap-2">
                         <Image
                           src={chooseChildButtonImage}
                           alt="Child"
-                          width={80}
-                          height={80}
+                          width={65}
+                          height={65}
                           className="object-contain"
                         />
-                        <span className="text-xl">Choose a Child</span>
+                        <span className="text-lg">Choose a Child</span>
                       </div>
                     </motion.button>
                       </div>
@@ -288,20 +288,20 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           style={{
                             backgroundSize: '200% 200%'
                           }}
                         >
                           Choose a Child
                         </motion.h2>
-                        <p className="mt-3 text-lg text-gray-300">
+                        <p className="mt-2 text-base text-gray-300">
                           Select the age and gender to find a child
                         </p>
                       </div>
 
                       {/* Search Form */}
-                      <div className="space-y-6 mt-8">
+                      <div className="space-y-4 mt-6">
                         {/* Gender Dropdown */}
                         <CustomDropdown
                           id="gender"
@@ -386,7 +386,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             }
                           }}
                           disabled={isLoadingChild}
-                          className="w-full relative overflow-hidden text-white font-bold py-4 px-6 rounded-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full relative overflow-hidden text-white font-bold py-3 px-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{
                             background: 'linear-gradient(to bottom, #10B981, #059669)',
                             boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -411,7 +411,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Back Button */}
                       <button
                         onClick={() => setCurrentScreen('selection')}
-                        className="w-full text-gray-300 hover:text-white font-medium py-3 transition-colors mt-4"
+                        className="w-full text-gray-300 hover:text-white font-medium py-2 transition-colors mt-3"
                       >
                         ← Back
                       </button>
@@ -426,33 +426,33 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         <Image
                           src={childAvatar}
                           alt={selectedChild.gender === 'male' ? 'Boy' : 'Girl'}
-                          width={120}
-                          height={120}
+                          width={100}
+                          height={100}
                           className="object-contain"
                         />
                         <motion.h2
-                          className="mt-4 text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="mt-3 text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           style={{
                             backgroundSize: '200% 200%'
                           }}
                         >
                           {selectedChild.recipient}
                         </motion.h2>
-                        <p className="mt-2 text-lg text-gray-300">
+                        <p className="mt-2 text-base text-gray-300">
                           {selectedChild.age} year{selectedChild.age !== 1 ? 's' : ''} old
                         </p>
                       </div>
 
                       {/* Gift Ideas */}
-                      <div className="mt-8 bg-white/5 rounded-xl p-6 border border-white/10 text-center">
-                        <h3 className="text-lg font-semibold text-yellow-300 mb-3">Has written to Santa and asked for...</h3>
-                        <p className="text-gray-200 leading-relaxed">
+                      <div className="mt-6 bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                        <h3 className="text-base font-semibold text-yellow-300 mb-2">Has written to Santa and asked for...</h3>
+                        <p className="text-sm text-gray-200 leading-relaxed">
                           {selectedChild.giftIdeas}
                         </p>
                       </div>
 
                       {/* Donation Buttons */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         {/* Donate Gift Button */}
                         <motion.button
                           whileHover={{ scale: 1.05, y: -2 }}
@@ -462,7 +462,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             setDonationType('gift');
                             setCurrentScreen('donation-form');
                           }}
-                          className="group relative overflow-hidden text-white font-bold py-8 px-6 rounded-2xl cursor-pointer"
+                          className="group relative overflow-hidden text-white font-bold py-6 px-4 rounded-2xl cursor-pointer"
                           style={{
                             background: 'linear-gradient(to bottom, #EF4444, #DC2626)',
                             boxShadow: '0 4px 14px rgba(220, 38, 38, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -480,8 +480,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                               ease: 'linear'
                             }}
                           />
-                          <div className="relative z-10 flex flex-col items-center gap-3">
-                            <span className="text-xl">Donate Gift</span>
+                          <div className="relative z-10 flex flex-col items-center gap-2">
+                            <span className="text-lg">Donate Gift</span>
                           </div>
                         </motion.button>
 
@@ -494,7 +494,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             setDonationType('cash');
                             setCurrentScreen('donation-form');
                           }}
-                          className="group relative overflow-hidden text-white font-bold py-8 px-6 rounded-2xl cursor-pointer"
+                          className="group relative overflow-hidden text-white font-bold py-6 px-4 rounded-2xl cursor-pointer"
                           style={{
                             background: 'linear-gradient(to bottom, #10B981, #059669)',
                             boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -513,8 +513,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                               delay: 1
                             }}
                           />
-                          <div className="relative z-10 flex flex-col items-center gap-3">
-                            <span className="text-xl">Donate Cash</span>
+                          <div className="relative z-10 flex flex-col items-center gap-2">
+                            <span className="text-lg">Donate Cash</span>
                           </div>
                         </motion.button>
                       </div>
@@ -522,7 +522,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Back Button */}
                       <button
                         onClick={() => setCurrentScreen('search')}
-                        className="w-full text-gray-300 hover:text-white font-medium py-3 transition-colors mt-6"
+                        className="w-full text-gray-300 hover:text-white font-medium py-2 transition-colors mt-4"
                       >
                         ← Back
                       </button>
@@ -535,20 +535,20 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
+                          className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent"
                           style={{
                             backgroundSize: '200% 200%'
                           }}
                         >
                           {donationType === 'gift' ? 'Donate a Gift' : 'Donate Cash'}
                         </motion.h2>
-                        <p className="mt-3 text-lg text-gray-300">
+                        <p className="mt-2 text-base text-gray-300">
                           For {selectedChild.recipient}
                         </p>
                       </div>
 
                       {/* Donation Form */}
-                      <div className="space-y-6 mt-8">
+                      <div className="space-y-4 mt-6">
                         {/* Full Name Input */}
                         <div>
                           <label htmlFor="donorName" className="block text-sm font-medium text-gray-300 mb-2">
@@ -712,7 +712,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             }
                           }}
                           disabled={isSubmittingDonation}
-                          className="w-full relative overflow-hidden text-white font-bold py-4 px-6 rounded-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full relative overflow-hidden text-white font-bold py-3 px-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{
                             background: 'linear-gradient(to bottom, #10B981, #059669)',
                             boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'
@@ -739,7 +739,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Back Button */}
                       <button
                         onClick={() => setCurrentScreen('child-details')}
-                        className="w-full text-gray-300 hover:text-white font-medium py-3 transition-colors mt-4"
+                        className="w-full text-gray-300 hover:text-white font-medium py-2 transition-colors mt-3"
                       >
                         ← Back
                       </button>
@@ -752,14 +752,14 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                       {/* Header */}
                       <div className="text-center">
                         <motion.h2
-                          className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent mb-6"
+                          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-400 via-yellow-300 to-green-400 bg-clip-text text-transparent mb-4"
                           style={{
                             backgroundSize: '200% 200%'
                           }}
                         >
                           Thank You!
                         </motion.h2>
-                        <div className="space-y-4 text-gray-200 text-lg">
+                        <div className="space-y-3 text-gray-200 text-base">
                           {donationType === 'gift' ? (
                             <p>
                               Thank you for donating a gift to <span className="text-yellow-300 font-semibold">{selectedChild.recipient}</span>! Your donation has been registered and you&apos;ll receive details about gift delivery shortly.
@@ -769,7 +769,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                               Thank you for donating <span className="text-yellow-300 font-semibold">£{donationAmount ? parseFloat(donationAmount).toFixed(2) : '20.00'}</span> to <span className="text-yellow-300 font-semibold">{selectedChild.recipient}</span>! This amount will be deducted from your next payslip and go directly toward making their Christmas special.
                             </p>
                           )}
-                          <p className="text-gray-300 mt-6">
+                          <p className="text-gray-300 mt-4 text-sm">
                             You&apos;re making this Christmas magical! 🎄
                           </p>
                         </div>
@@ -780,7 +780,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleClose}
-                        className="w-full relative overflow-hidden text-white font-bold py-4 px-6 rounded-xl mt-12"
+                        className="w-full relative overflow-hidden text-white font-bold py-3 px-4 rounded-xl mt-8"
                         style={{
                           background: 'linear-gradient(to bottom, #10B981, #059669)',
                           boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)'

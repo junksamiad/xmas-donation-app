@@ -89,6 +89,15 @@ export default function Home() {
     }));
   });
 
+  // Show nothing until we've determined mobile vs desktop
+  if (!mounted) {
+    return (
+      <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
+        {/* Empty - prevents flash of wrong layout */}
+      </main>
+    );
+  }
+
   // MOBILE LAYOUT - Simple and centered
   if (isMobile) {
     return (
@@ -224,7 +233,7 @@ export default function Home() {
         {/* ANS Campaign Banner - On tree */}
         {!isModalOpen && (
           <motion.div
-            className="absolute left-[-13%] bottom-[24%]"
+            className="absolute left-[-15%] bottom-[24%]"
             style={{ zIndex: 49, rotate: '-10deg' }}
             initial={{ opacity: 0, x: 50 }}
             animate={{
@@ -249,8 +258,8 @@ export default function Home() {
             <Image
               src="/ans-scroll-banner.png"
               alt="ANS Christmas Campaign"
-              width={504}
-              height={606}
+              width={582}
+              height={700}
               className="object-contain"
             />
           </motion.div>
