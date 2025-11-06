@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Image from 'next/image';
 
@@ -23,6 +23,20 @@ interface SantaSleigh {
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Detect mobile vs desktop
+  useEffect(() => {
+    setMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Generate deterministic positions for stars based on index
   // Mobile: 20 stars, Desktop: 50 stars
@@ -75,6 +89,149 @@ export default function Home() {
     }));
   });
 
+  // MOBILE LAYOUT - Simple and centered
+  if (isMobile) {
+    return (
+      <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
+        {/* Snow Effect */}
+        <SnowEffect />
+
+        {/* Frosted glass overlay */}
+        <div className="fixed inset-0 bg-gray-900/10 backdrop-blur-sm pointer-events-none z-30" />
+
+        {/* Window Frame */}
+        <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 45 }}>
+          <Image
+            src="/window-frame.png"
+            alt="Window frame"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* Stats Banner */}
+        <div className="absolute top-4 left-0 right-0 pointer-events-none" style={{ zIndex: 46 }}>
+          <StatsTickerBanner />
+        </div>
+
+        {/* Christmas Tree - Centered and large */}
+        <motion.div
+          className="absolute left-1/3 -translate-x-1/2 bottom-0 pointer-events-none w-screen h-[85vh]"
+          style={{ zIndex: 48 }}
+          animate={{
+            filter: [
+              'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))',
+              'drop-shadow(0 0 16px rgba(255, 215, 0, 0.5))',
+              'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))'
+            ]
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        >
+          <Image
+            src="/tree-no-labels.png"
+            alt="Christmas tree"
+            fill
+            className="object-contain"
+          />
+        </motion.div>
+
+        {/* Donate Now Button - Bottom center */}
+        <motion.div
+          className="absolute left-[75%] -translate-x-1/2 bottom-32"
+          style={{
+            zIndex: 49,
+            rotate: -22,
+            cursor: isModalOpen ? 'default' : 'pointer',
+            filter: isModalOpen ? 'blur(2px)' : 'none',
+            opacity: isModalOpen ? 0.5 : 1,
+            width: '180px',
+            height: '90px'
+          }}
+          animate={!isModalOpen ? {
+            scale: [1, 1.08, 1],
+            filter: [
+              'blur(0px) drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))',
+              'blur(0px) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
+              'blur(0px) drop-shadow(0 0 8px rgba(255, 215, 0, 0.4))'
+            ]
+          } : {
+            scale: 1
+          }}
+          transition={!isModalOpen ? {
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          } : {
+            duration: 0.3
+          }}
+          onClick={() => !isModalOpen && setIsModalOpen(true)}
+          whileHover={!isModalOpen ? { scale: 1.15 } : {}}
+          whileTap={!isModalOpen ? { scale: 0.95 } : {}}
+        >
+          <Image
+            src="/donate-label-1.png"
+            alt="Donate Now"
+            width={180}
+            height={90}
+            className="object-contain"
+            unoptimized
+          />
+        </motion.div>
+
+        {/* ANS Campaign Banner - Top right, smaller */}
+        {!isModalOpen && (
+          <motion.div
+            className="fixed top-24 right-4"
+            style={{ zIndex: 48, rotate: '20deg' }}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              scale: [1, 1.05, 1],
+              filter: [
+                'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))',
+                'drop-shadow(0 0 16px rgba(255, 215, 0, 0.5))',
+                'drop-shadow(0 0 8px rgba(255, 215, 0, 0.3))'
+              ]
+            }}
+            transition={{
+              opacity: { duration: 0.5, delay: 0.5 },
+              x: { duration: 0.5, delay: 0.5 },
+              scale: {
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 1
+              },
+              filter: {
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }
+            }}
+          >
+            <Image
+              src="/ans-scroll-banner.png"
+              alt="ANS Christmas Campaign"
+              width={250}
+              height={300}
+              className="object-contain"
+            />
+          </motion.div>
+        )}
+
+        {/* Modal */}
+        <DonationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      </main>
+    );
+  }
+
+  // DESKTOP LAYOUT - Your finished design
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-800">
       {/* Starry Background - Reduced count on mobile */}
@@ -102,7 +259,7 @@ export default function Home() {
 
       {/* Santa Sleighs - Desktop only */}
       <div className="absolute inset-0 hidden lg:block">
-        {santas.map((santa, i) => (
+        {mounted && santas.map((santa, i) => (
           <motion.div
             key={`santa-${i}`}
             className="absolute"
