@@ -233,7 +233,7 @@ export default function Home() {
         {/* ANS Campaign Banner - On tree */}
         {!isModalOpen && (
           <motion.div
-            className="absolute left-[-15%] bottom-[24%]"
+            className="absolute left-[-18%] bottom-[20%]"
             style={{ zIndex: 49, rotate: '-10deg' }}
             initial={{ opacity: 0, x: 50 }}
             animate={{
