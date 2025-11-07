@@ -26,9 +26,14 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // Track mounted state to prevent hydration mismatch
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   // Detect mobile vs desktop
   useEffect(() => {
-    setMounted(true);
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
