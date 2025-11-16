@@ -47,3 +47,6 @@ node_modules
 
 # scripts with credentials
 /scripts/
+
+# old app directory
+/old-app/
