@@ -235,7 +235,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                           height={55}
                           className="object-contain lg:w-[80px] lg:h-[80px]"
                         />
-                        <span className="text-base lg:text-xl">{isLoadingChild ? 'Finding...' : 'Any Child'}</span>
+                        <span className="text-sm lg:text-xl text-center">{isLoadingChild ? 'Finding...' : 'Any Child'}</span>
                       </div>
                     </motion.button>
 
@@ -273,7 +273,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                           height={55}
                           className="object-contain lg:w-[80px] lg:h-[80px]"
                         />
-                        <span className="text-base lg:text-xl">Choose a Child</span>
+                        <span className="text-sm lg:text-xl text-center">Choose a Child</span>
                       </div>
                     </motion.button>
                       </div>
