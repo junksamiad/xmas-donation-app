@@ -49,6 +49,14 @@ const getRandomFromArray = (array: string[]): string => {
   return array[randomIndex];
 };
 
+// Email domain options
+const EMAIL_DOMAINS = [
+  { value: 'ans.co.uk', label: '@ans.co.uk' },
+  { value: 'ansgroup.co.uk', label: '@ansgroup.co.uk' },
+  { value: 'makutu.io', label: '@makutu.io' },
+  { value: 'sci-net.co.uk', label: '@sci-net.co.uk' },
+];
+
 export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [currentScreen, setCurrentScreen] = useState<ModalScreen>('selection');
   const [selectedGender, setSelectedGender] = useState<string>('');
@@ -58,6 +66,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
   const [donationType, setDonationType] = useState<'gift' | 'cash' | null>(null);
   const [donorName, setDonorName] = useState<string>('');
   const [donorEmail, setDonorEmail] = useState<string>('');
+  const [emailDomain, setEmailDomain] = useState<string>('ans.co.uk');
   const [department, setDepartment] = useState<string>('');
   const [donationAmount, setDonationAmount] = useState<string>('');
   const [isLoadingChild, setIsLoadingChild] = useState<boolean>(false);
@@ -83,6 +92,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
     setDonationType(null);
     setDonorName('');
     setDonorEmail('');
+    setEmailDomain('ans.co.uk');
     setDepartment('');
     setDonationAmount('');
     onClose();
@@ -566,34 +576,69 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                           />
                         </div>
 
+                        {/* Email Domain Dropdown */}
+                        <CustomDropdown
+                          id="emailDomain"
+                          label="Email Domain"
+                          value={emailDomain}
+                          onChange={setEmailDomain}
+                          options={EMAIL_DOMAINS}
+                          placeholder="Select domain..."
+                        />
+
                         {/* Email Input (username only) */}
                         <div>
                           <label htmlFor="donorEmail" className="block text-sm font-medium text-gray-300 mb-2">
                             Your Work Email
                           </label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              id="donorEmail"
-                              value={donorEmail}
-                              onChange={(e) => {
-                                // Allow only lowercase letters, numbers, dots, and hyphens
-                                const value = e.target.value.toLowerCase().replace(/[^a-z0-9.\-]/g, '');
-                                setDonorEmail(value);
-                              }}
-                              placeholder="e.g., john.smith"
-                              className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-                              @ans-group.co.uk
-                            </div>
-                          </div>
-                          {donorEmail && (
-                            <p className="mt-1 text-sm text-gray-400">
-                              Full email: {donorEmail}@ans-group.co.uk
-                            </p>
-                          )}
+                          <input
+                            type="text"
+                            id="donorEmail"
+                            value={donorEmail}
+                            onChange={(e) => {
+                              const value = e.target.value.toLowerCase();
+
+                              // Smart parsing: Check if user typed a full email with @
+                              if (value.includes('@')) {
+                                const [username, domain] = value.split('@');
+
+                                // Check if domain matches one of our allowed domains
+                                const allowedDomains = EMAIL_DOMAINS.map(d => d.value);
+                                const matchedDomain = allowedDomains.find(d => domain.startsWith(d.split('.')[0]));
+
+                                // More precise domain matching
+                                const exactMatch = allowedDomains.find(d => d === domain);
+
+                                if (exactMatch) {
+                                  // Exact match - set username and auto-select domain
+                                  setDonorEmail(username.replace(/[^a-z0-9.\-]/g, ''));
+                                  setEmailDomain(exactMatch);
+                                } else if (matchedDomain) {
+                                  // Partial match - still try to help
+                                  setDonorEmail(username.replace(/[^a-z0-9.\-]/g, ''));
+                                  setEmailDomain(matchedDomain);
+                                } else {
+                                  // No match - just take username, leave domain as-is
+                                  setDonorEmail(username.replace(/[^a-z0-9.\-]/g, ''));
+                                }
+                              } else {
+                                // Normal username entry - allow only valid characters
+                                setDonorEmail(value.replace(/[^a-z0-9.\-]/g, ''));
+                              }
+                            }}
+                            placeholder="e.g., john.smith or john.smith@ans.co.uk"
+                            className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
                         </div>
+
+                        {/* Full Email Preview */}
+                        {donorEmail && (
+                          <div className="-mt-2 p-3 rounded-lg bg-slate-800/50 border border-white/10">
+                            <p className="text-sm text-gray-400">
+                              Full email: <span className="text-white font-medium">{donorEmail}@{emailDomain}</span>
+                            </p>
+                          </div>
+                        )}
 
                         {/* Department Dropdown */}
                         <CustomDropdown
@@ -672,8 +717,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                               return;
                             }
 
-                            // Construct full email
-                            const fullEmail = `${trimmedEmail}@ans-group.co.uk`;
+                            // Construct full email with selected domain
+                            const fullEmail = `${trimmedEmail}@${emailDomain}`;
 
                             if (!department) {
                               toast.error('Please select your department');

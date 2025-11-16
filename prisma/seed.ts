@@ -11,23 +11,19 @@ async function main() {
   await prisma.giftIdea.deleteMany();
   await prisma.department.deleteMany();
 
-  // Create 15 placeholder departments
+  // Create departments
   const departmentNames = [
-    'Marketing',
+    'Commercial',
+    'Customer Success',
+    'Finance, Legal & Transformation',
+    'Makutu',
+    'Sci-Net',
+    'Managed Services',
+    'People',
     'Sales',
-    'Accounts',
-    'Human Resources',
-    'IT',
-    'Operations',
-    'Customer Service',
-    'Product Development',
-    'Finance',
-    'Legal',
-    'Administration',
-    'Logistics',
-    'Quality Assurance',
-    'Research & Development',
-    'Business Development',
+    'Technology',
+    'Academy',
+    'Professional Services',
   ];
 
   const departments = [];
