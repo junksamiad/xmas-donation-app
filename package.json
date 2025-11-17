@@ -6,8 +6,14 @@
     "dev": "next dev --turbopack -p 3007",
     "build": "next build --turbopack",
     "start": "next start",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed-children": "tsx prisma/seed-children.ts"
+    "db:seed-full": "tsx prisma/seed.ts",
+    "db:seed-departments": "tsx prisma/seed-departments.ts",
+    "db:seed-children": "tsx prisma/seed-children.ts",
+    "db:seed-gift-ideas": "tsx prisma/seed-gift-ideas.ts",
+    "db:seed-user": "tsx prisma/seed-user.ts",
+    "db:backup-donations": "tsx prisma/backup-donations.ts",
+    "db:restore": "tsx prisma/restore-donations.ts",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

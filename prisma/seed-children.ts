@@ -93,10 +93,24 @@ function shuffleArray<T>(array: T[]): T[] {
 async function main() {
   console.log('🎄 Seeding children database with UK demographic data...');
 
-  // Clear existing children (but keep departments and gift ideas)
-  await prisma.donation.deleteMany();
+  // ⚠️ SAFETY CHECK: Ensure no donations exist before deleting children
+  const donationCount = await prisma.donation.count();
+  if (donationCount > 0) {
+    console.error('');
+    console.error('❌ SAFETY BLOCK: Cannot seed children!');
+    console.error(`   ${donationCount} donation(s) exist in database`);
+    console.error('');
+    console.error('Options:');
+    console.error('   1. Backup donations first: npm run db:backup-donations');
+    console.error('   2. Delete donations: await prisma.donation.deleteMany()');
+    console.error('   3. Deploy to fresh database instead');
+    console.error('');
+    throw new Error('Donations exist - refusing to delete children data');
+  }
+
+  // Safe to proceed - no donations exist
   await prisma.child.deleteMany();
-  console.log('✓ Cleared existing children');
+  console.log('✓ Cleared existing children (no donations affected)');
 
   const children = [];
 

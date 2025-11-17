@@ -48,5 +48,9 @@ node_modules
 # scripts with credentials
 /scripts/
 
+# backup and log files
+/backups/
+/logs/
+
 # old app directory
 /old-app/
