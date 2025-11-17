@@ -11,6 +11,8 @@
     "db:seed-children": "tsx prisma/seed-children.ts",
     "db:seed-gift-ideas": "tsx prisma/seed-gift-ideas.ts",
     "db:seed-user": "tsx prisma/seed-user.ts",
+    "db:replace-real-children": "tsx prisma/replace-with-real-children.ts",
+    "db:fix-priority": "tsx prisma/fix-priority-flags.ts",
     "db:backup-donations": "tsx prisma/backup-donations.ts",
     "db:restore": "tsx prisma/restore-donations.ts",
     "db:restore-blob": "tsx prisma/restore-from-blob.ts",

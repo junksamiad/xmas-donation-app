@@ -22,11 +22,22 @@ export class ChildService {
 
   /**
    * Get a random unassigned child
+   * Prioritizes children with priority=true (real children) first
    */
   async getRandomChild(): Promise<Child | null> {
-    // Get all unassigned children
+    // First, try to get a priority child
+    const priorityChildren = await this.db.child.findMany({
+      where: { assigned: false, priority: true },
+    })
+
+    if (priorityChildren.length > 0) {
+      const randomIndex = Math.floor(Math.random() * priorityChildren.length)
+      return priorityChildren[randomIndex]
+    }
+
+    // If no priority children available, fall back to non-priority children
     const children = await this.db.child.findMany({
-      where: { assigned: false },
+      where: { assigned: false, priority: false },
     })
 
     if (children.length === 0) {
@@ -41,24 +52,37 @@ export class ChildService {
   /**
    * Search for a child by gender and/or age
    * Returns a random child matching criteria
+   * Prioritizes children with priority=true (real children) first
    * Either parameter can be omitted for partial search
    */
   async searchChild(params: SearchChildParams): Promise<Child | null> {
     const { gender, age } = params
 
-    // Build where clause dynamically based on provided params
-    const where: { assigned: boolean; gender?: string; age?: number } = { assigned: false }
+    // Build base where clause dynamically based on provided params
+    const baseWhere: { assigned: boolean; gender?: string; age?: number } = { assigned: false }
 
     if (gender) {
-      where.gender = gender
+      baseWhere.gender = gender
     }
 
     if (age !== undefined) {
-      where.age = age
+      baseWhere.age = age
     }
 
-    // Find matching unassigned children
-    const children = await this.db.child.findMany({ where })
+    // First, try to find priority children matching criteria
+    const priorityChildren = await this.db.child.findMany({
+      where: { ...baseWhere, priority: true },
+    })
+
+    if (priorityChildren.length > 0) {
+      const randomIndex = Math.floor(Math.random() * priorityChildren.length)
+      return priorityChildren[randomIndex]
+    }
+
+    // If no priority children match, fall back to non-priority children
+    const children = await this.db.child.findMany({
+      where: { ...baseWhere, priority: false },
+    })
 
     if (children.length === 0) {
       return null
