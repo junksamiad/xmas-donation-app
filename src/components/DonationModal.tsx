@@ -663,10 +663,10 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             <input
                               type="number"
                               id="amount"
-                              value={donationAmount || '20'}
+                              value={donationAmount || '5'}
                               onChange={(e) => setDonationAmount(e.target.value)}
                               step="0.01"
-                              min="20"
+                              min="5"
                               className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
@@ -730,8 +730,8 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                               return;
                             }
 
-                            if (donationType === 'cash' && parseFloat(donationAmount) < 20) {
-                              toast.error('Minimum donation amount is £20');
+                            if (donationType === 'cash' && parseFloat(donationAmount) < 5) {
+                              toast.error('Minimum donation amount is £5');
                               return;
                             }
 
@@ -805,11 +805,15 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                         <div className="space-y-3 text-gray-200 text-base">
                           {donationType === 'gift' ? (
                             <p>
-                              Thank you for donating a gift to <span className="text-yellow-300 font-semibold">{selectedChild.recipient}</span>! Your donation has been registered and you&apos;ll receive details about gift delivery shortly.
+                              Thank you for buying a present for a child in need.<br />
+                              Please make sure the present is at Fusion, unwrapped, but with the child&apos;s name <span className="text-yellow-300 font-semibold">({selectedChild.recipient})</span> clearly attached, by Thursday 4th December.<br />
+                              Contact Liz Donevan if you have any problems.
                             </p>
                           ) : (
                             <p>
-                              Thank you for donating <span className="text-yellow-300 font-semibold">£{donationAmount ? parseFloat(donationAmount).toFixed(2) : '20.00'}</span> to <span className="text-yellow-300 font-semibold">{selectedChild.recipient}</span>! This amount will be deducted from your next payslip and go directly toward making their Christmas special.
+                              Thank you for donating <span className="text-yellow-300 font-semibold">£{donationAmount ? parseFloat(donationAmount).toFixed(2) : '5.00'}</span> to our Christmas Appeal. We will use your generous donation to buy a gift for a child in need.<br />
+                              By submitting your information you agree for your contribution to be taken from your salary in January 2026.<br />
+                              Contact Liz Donevan if you have any questions.
                             </p>
                           )}
                           <p className="text-gray-300 mt-4 text-sm">
