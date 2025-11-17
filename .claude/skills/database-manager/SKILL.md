@@ -34,7 +34,7 @@ npm run db:restore-blob donations-backup-YYYY-MM-DDTHH-MM-SS-XXXZ.json
 npx prisma studio
 ```
 
-**The system creates automatic backups every 5 minutes in production.**
+**The system creates automatic backups every hour in production.**
 
 ---
 
@@ -42,7 +42,7 @@ npx prisma studio
 
 ### Production Backups (Vercel Blob Storage)
 
-**Automated backups run every 5 minutes** via Vercel Cron:
+**Automated backups run hourly** via Vercel Cron:
 - Stored in **Vercel Blob** (persistent cloud storage)
 - Retained for **30 days** (auto-cleanup)
 - Accessible from anywhere
@@ -215,7 +215,7 @@ npm run db:seed-user
 # Step 4: Verify
 npx prisma studio
 
-# Backups will start automatically via cron (every 5 minutes)
+# Backups will start automatically via cron (every hour)
 ```
 
 ### Workflow: Update Departments
@@ -259,17 +259,17 @@ Example: donations-backup-2025-11-17T10-50-34-416Z.json
 
 **Retention**:
 - Automatic cleanup after 30 days
-- Keeps last ~8,640 backups (5-min intervals × 30 days)
+- Keeps last ~720 backups (24 hourly backups × 30 days)
 
 ### Cron Schedule
 
-**Production**: Every 5 minutes (`*/5 * * * *`)
+**Production**: Hourly (`0 * * * *`)
 - Configured in `vercel.json`
 - Runs on Vercel's infrastructure (always active)
 - No local machine required
 
 **Timing examples**:
-- 10:00, 10:05, 10:10, 10:15, 10:20, etc.
+- 00:00, 01:00, 02:00, 03:00, etc. (top of every hour)
 
 ### Backup Contents
 
@@ -348,7 +348,7 @@ npm run db:restore-blob
 npm run db:restore-blob donations-backup-YYYY-MM-DDTHH-MM-SS-XXXZ.json
 ```
 
-**Prevention**: Automatic backups run every 5 minutes. Max data loss = 5 minutes.
+**Prevention**: Automatic backups run hourly. Max data loss = 1 hour.
 
 ### "No backups found in Blob storage!"
 
@@ -428,7 +428,7 @@ npm run db:seed-departments
 ### Check Backup System Health
 
 ```bash
-# List recent backups (should have backups every 5 minutes)
+# List recent backups (should have backups every hour)
 npm run db:restore-blob
 
 # Verify cron is running (check Vercel logs)
@@ -438,7 +438,7 @@ vercel logs --scope junksamiad
 curl https://xmas-donation-app.vercel.app/api/backups
 ```
 
-**Expected**: New backup every 5 minutes during active hours.
+**Expected**: New backup every hour.
 
 ### Verify Recovery Capability
 
@@ -492,8 +492,8 @@ curl https://xmas-donation-app.vercel.app/api/backups  # Check backups
 ---
 
 **Remember**:
-- ⏰ **Automatic backups every 5 minutes** (production)
-- 🔒 **30-day retention** in Vercel Blob
+- ⏰ **Automatic backups every hour** (production)
+- 🔒 **30-day retention** in Vercel Blob (~720 backups)
 - 🎯 **Granular > Full** for safety
 - 💾 **Always verify backups exist** before destructive ops
-- 🚨 **Max data loss: 5 minutes** (time between backups)
+- 🚨 **Max data loss: 1 hour** (time between backups)
