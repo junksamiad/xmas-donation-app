@@ -48,8 +48,41 @@ async function main() {
     process.exit(1);
   }
 
-  // Use most recent backup
-  const backupFile = backupFiles[0];
+  // Check if specific backup file provided as argument
+  const specificBackup = process.argv[2];
+  let backupFile: string;
+
+  if (specificBackup) {
+    // Use specified backup
+    if (!backupFiles.includes(specificBackup)) {
+      console.error('');
+      console.error(`❌ Backup file not found: ${specificBackup}`);
+      console.error('');
+      console.error('Available backups:');
+      backupFiles.forEach((f, i) => {
+        const stats = fs.statSync(path.join(backupDir, f));
+        const backupData = JSON.parse(fs.readFileSync(path.join(backupDir, f), 'utf-8'));
+        console.error(`   ${i + 1}. ${f} (${backupData.length} donations, ${stats.mtime.toLocaleString()})`);
+      });
+      process.exit(1);
+    }
+    backupFile = specificBackup;
+  } else {
+    // List available backups and use most recent
+    console.log('📂 Available backups:');
+    backupFiles.forEach((f, i) => {
+      const stats = fs.statSync(path.join(backupDir, f));
+      const backupData = JSON.parse(fs.readFileSync(path.join(backupDir, f), 'utf-8'));
+      const marker = i === 0 ? ' ← WILL USE THIS' : '';
+      console.log(`   ${i + 1}. ${f} (${backupData.length} donations, ${stats.mtime.toLocaleString()})${marker}`);
+    });
+    console.log('');
+    console.log('💡 To use a different backup: npm run db:restore <filename>');
+    console.log('');
+
+    backupFile = backupFiles[0];
+  }
+
   const filepath = path.join(backupDir, backupFile);
 
   console.log(`📂 Using backup: ${backupFile}`);
