@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 import { PrismaClient } from '@prisma/client';
+import { put, list, del } from '@vercel/blob';
 
 const prisma = new PrismaClient();
 
@@ -17,7 +15,10 @@ function verifyVercelCron(request: Request) {
   }
 
   // For testing, allow requests from Vercel cron
-  return authHeader?.startsWith('Bearer ') || request.headers.get('user-agent')?.includes('vercel-cron');
+  return (
+    authHeader?.startsWith('Bearer ') ||
+    request.headers.get('user-agent')?.includes('vercel-cron')
+  );
 }
 
 export async function GET(request: Request) {
@@ -34,13 +35,6 @@ export async function GET(request: Request) {
 
     console.log('🔄 [CRON] Starting backup process...');
 
-    // Create backups directory if it doesn't exist
-    const backupDir = path.join(process.cwd(), 'backups');
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-      console.log(`✓ [CRON] Created backup directory: ${backupDir}`);
-    }
-
     // Fetch all donations with related data
     const donations = await prisma.donation.findMany({
       include: {
@@ -52,7 +46,6 @@ export async function GET(request: Request) {
     // Generate timestamped filename
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `donations-backup-${timestamp}.json`;
-    const filepath = path.join(backupDir, filename);
 
     // Get counts
     const donationCount = donations.length;
@@ -60,27 +53,33 @@ export async function GET(request: Request) {
       .filter((d) => d.donationType === 'cash' && d.amount)
       .reduce((sum, d) => sum + Number(d.amount), 0);
 
-    // Save to file
-    fs.writeFileSync(filepath, JSON.stringify(donations, null, 2));
+    // Upload to Vercel Blob
+    const backupData = JSON.stringify(donations, null, 2);
+    const blob = await put(filename, backupData, {
+      access: 'public',
+      contentType: 'application/json',
+    });
+
+    console.log(`✓ [CRON] Uploaded backup to Blob: ${blob.url}`);
 
     // Cleanup old backups (keep last 30 days)
     const retentionDays = 30;
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
 
-    const files = fs.readdirSync(backupDir);
+    // List all backups
+    const { blobs } = await list({
+      prefix: 'donations-backup-',
+    });
+
     let deletedCount = 0;
 
-    for (const file of files) {
-      if (file.startsWith('donations-backup-') && file.endsWith('.json')) {
-        const filePath = path.join(backupDir, file);
-        const stats = fs.statSync(filePath);
-
-        if (stats.mtime < cutoffDate) {
-          fs.unlinkSync(filePath);
-          deletedCount++;
-          console.log(`✓ [CRON] Deleted old backup: ${file}`);
-        }
+    for (const existingBlob of blobs) {
+      // Check if blob is older than retention period
+      if (existingBlob.uploadedAt < cutoffDate) {
+        await del(existingBlob.url);
+        deletedCount++;
+        console.log(`✓ [CRON] Deleted old backup: ${existingBlob.pathname}`);
       }
     }
 
@@ -92,14 +91,18 @@ export async function GET(request: Request) {
       duration: `${duration}ms`,
       backup: {
         filename,
+        url: blob.url,
         donations: donationCount,
-        giftDonations: donations.filter((d) => d.donationType === 'gift').length,
-        cashDonations: donations.filter((d) => d.donationType === 'cash').length,
+        giftDonations: donations.filter((d) => d.donationType === 'gift')
+          .length,
+        cashDonations: donations.filter((d) => d.donationType === 'cash')
+          .length,
         totalCashValue: `£${totalCash.toFixed(2)}`,
       },
       cleanup: {
         deleted: deletedCount,
         retentionDays,
+        totalBackups: blobs.length - deletedCount,
       },
     };
 

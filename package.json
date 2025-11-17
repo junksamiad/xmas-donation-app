@@ -13,11 +13,13 @@
     "db:seed-user": "tsx prisma/seed-user.ts",
     "db:backup-donations": "tsx prisma/backup-donations.ts",
     "db:restore": "tsx prisma/restore-donations.ts",
+    "db:restore-blob": "tsx prisma/restore-from-blob.ts",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.16.2",
+    "@vercel/blob": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.16",
