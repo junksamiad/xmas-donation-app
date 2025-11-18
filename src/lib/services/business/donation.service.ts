@@ -238,6 +238,7 @@ export class DonationService {
       id: string
       childName: string
       donorName: string
+      donorEmail: string | null
       departmentName: string
       donationType: 'gift' | 'cash'
       amount: number | null
@@ -266,6 +267,7 @@ export class DonationService {
       id: donation.id,
       childName: donation.childName,
       donorName: donation.donorName,
+      donorEmail: donation.donorEmail,
       departmentName: donation.departmentName,
       donationType: donation.donationType as 'gift' | 'cash',
       amount: donation.amount ? Number(donation.amount) : null,

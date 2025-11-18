@@ -316,6 +316,7 @@ export async function getAllDonationsWithDetails(params?: {
       id: string
       childName: string
       donorName: string
+      donorEmail: string | null
       departmentName: string
       donationType: 'gift' | 'cash'
       amount: number | null

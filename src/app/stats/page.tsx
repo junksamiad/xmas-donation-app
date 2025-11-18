@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { motion } from 'framer-motion'
+import { ChevronDown } from 'lucide-react'
 
 import SnowEffect from '@/components/SnowEffect'
 
@@ -25,6 +26,7 @@ interface DonationRow {
   id: string
   childName: string
   donorName: string
+  donorEmail: string | null
   departmentName: string
   donationType: 'gift' | 'cash'
   amount: number | null
@@ -80,6 +82,7 @@ export default function StatsPage() {
   const [childrenProgress, setChildrenProgress] = useState({ assigned: 0, total: 160, percentage: 0 })
   const [loading, setLoading] = useState(true)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [showExportDropdown, setShowExportDropdown] = useState(false)
 
   const pageSize = 25
 
@@ -95,6 +98,19 @@ export default function StatsPage() {
     }
     checkAuth()
   }, [router])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (showExportDropdown && !target.closest('.relative')) {
+        setShowExportDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showExportDropdown])
 
   // Fetch all data
   useEffect(() => {
@@ -155,10 +171,14 @@ export default function StatsPage() {
   }, [currentPage, viewMode])
 
   // Export to CSV
-  const exportToCSV = () => {
+  const exportToCSV = (filterType: 'gift' | 'cash') => {
+    // Filter donations by type
+    const filteredDonations = donations.filter((d) => d.donationType === filterType)
+
     const headers = [
       'Child Name',
       'Donor Name',
+      'Donor Email',
       'Department',
       'Donation Type',
       'Amount',
@@ -168,9 +188,10 @@ export default function StatsPage() {
       'Date',
     ]
 
-    const rows = donations.map((d) => [
+    const rows = filteredDonations.map((d) => [
       d.childName,
       d.donorName,
+      d.donorEmail || 'N/A',
       d.departmentName,
       d.donationType === 'cash' ? `£${d.amount?.toFixed(2)}` : 'Gift',
       d.amount?.toFixed(2) || 'N/A',
@@ -186,8 +207,9 @@ export default function StatsPage() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `donations-${new Date().toISOString().split('T')[0]}.csv`
+    a.download = `donations-${filterType}-${new Date().toISOString().split('T')[0]}.csv`
     a.click()
+    setShowExportDropdown(false)
   }
 
   // Group donations by department for department view
@@ -288,13 +310,35 @@ export default function StatsPage() {
             </button>
           </div>
 
-          {/* Export Button */}
-          <button
-            onClick={exportToCSV}
-            className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
-          >
-            <span>Export to CSV</span>
-          </button>
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
+              className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+            >
+              <span>Export to CSV</span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
+
+            {showExportDropdown && (
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden z-10">
+                <button
+                  onClick={() => exportToCSV('gift')}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-slate-700 transition-colors flex flex-col"
+                >
+                  <span className="font-medium">Gift Donations Only</span>
+                  <span className="text-xs text-slate-400">Export all gift donations</span>
+                </button>
+                <button
+                  onClick={() => exportToCSV('cash')}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-slate-700 transition-colors flex flex-col border-t border-slate-700"
+                >
+                  <span className="font-medium">Cash Donations Only</span>
+                  <span className="text-xs text-slate-400">Export all cash donations</span>
+                </button>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* Donations Table */}

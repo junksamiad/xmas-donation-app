@@ -151,7 +151,7 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
             >
               {/* Inner modal with gradient background */}
               <div
-                className="relative rounded-3xl p-6 md:p-8 lg:p-10 flex flex-col overflow-hidden h-[680px] lg:h-[800px]"
+                className="relative rounded-3xl flex flex-col overflow-hidden h-[680px] lg:h-[800px]"
                 style={{
                   background: 'linear-gradient(to bottom, #1e293b, #0f172a)',
                   boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.5)',
@@ -161,14 +161,14 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                 {/* Close Button */}
                 <button
                   onClick={handleClose}
-                  className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors border border-white/20"
+                  className="absolute top-3 right-3 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-colors border border-white/20 z-20"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5 text-white" />
                 </button>
 
-                {/* Modal Content */}
-                <div className="space-y-6 relative z-10 flex-1 flex flex-col justify-center">
+                {/* Modal Content - Scrollable */}
+                <div className="space-y-6 relative z-10 flex-1 flex flex-col justify-center p-6 md:p-8 lg:p-10 overflow-y-auto">
                   {/* Selection Screen */}
                   {currentScreen === 'selection' && (
                     <>
