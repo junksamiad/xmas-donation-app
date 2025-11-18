@@ -84,10 +84,9 @@ export default function CustomDropdown({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute z-50 w-full mt-2 rounded-xl bg-slate-900 border border-white/20 shadow-2xl overflow-hidden"
+            className="absolute z-50 w-full mt-2 rounded-xl bg-slate-900 border border-white/20 shadow-2xl overflow-y-auto"
             style={{
-              maxHeight: '300px',
-              overflowY: 'auto'
+              maxHeight: '192px' // Shows ~4 options (48px each) before scrolling
             }}
           >
             {options.map((option) => (
