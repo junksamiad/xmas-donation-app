@@ -663,8 +663,15 @@ export default function DonationModal({ isOpen, onClose }: DonationModalProps) {
                             <input
                               type="number"
                               id="amount"
-                              value={donationAmount || '5'}
+                              value={donationAmount}
                               onChange={(e) => setDonationAmount(e.target.value)}
+                              onBlur={(e) => {
+                                const value = e.target.value;
+                                if (value && !isNaN(parseFloat(value))) {
+                                  setDonationAmount(parseFloat(value).toFixed(2));
+                                }
+                              }}
+                              placeholder="Minimum £5"
                               step="0.01"
                               min="5"
                               className="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
