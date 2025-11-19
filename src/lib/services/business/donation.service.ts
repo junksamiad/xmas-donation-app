@@ -286,6 +286,41 @@ export class DonationService {
   }
 
   /**
+   * Update donation amount (for cash donations only)
+   */
+  async updateAmount(id: string, newAmount: number): Promise<Donation> {
+    // Verify donation exists and is a cash donation
+    const donation = await this.db.donation.findUnique({
+      where: { id },
+    })
+
+    if (!donation) {
+      throw new Error('Donation not found')
+    }
+
+    if (donation.donationType !== 'cash') {
+      throw new Error('Can only update amount for cash donations')
+    }
+
+    if (newAmount <= 0) {
+      throw new Error('Amount must be greater than zero')
+    }
+
+    // Update the donation amount
+    const updated = await this.db.donation.update({
+      where: { id },
+      data: {
+        amount: new Prisma.Decimal(newAmount),
+      },
+    })
+
+    return {
+      ...updated,
+      amount: updated.amount ? Number(updated.amount) : null,
+    }
+  }
+
+  /**
    * Get gender split statistics for donated children
    */
   async getGenderSplit(): Promise<{

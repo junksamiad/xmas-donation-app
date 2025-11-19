@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 import SnowEffect from '@/components/SnowEffect'
 
@@ -17,10 +18,12 @@ import {
   getTopDonorsByCash,
   getDonationStats,
   getChildrenProgress,
+  updateDonationAmount,
 } from '@/app/actions'
 import { isAuthenticated, logout } from '@/app/auth/actions'
 
 type ViewMode = 'department' | 'all'
+type LeaderboardMode = 'donors' | 'dept-cash' | 'dept-gifts'
 
 interface DonationRow {
   id: string
@@ -83,6 +86,12 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [showExportDropdown, setShowExportDropdown] = useState(false)
+  const [editingDonationId, setEditingDonationId] = useState<string | null>(null)
+  const [editedAmount, setEditedAmount] = useState<string>('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [leaderboardMode, setLeaderboardMode] = useState<LeaderboardMode>('donors')
+  const [sortColumn, setSortColumn] = useState<keyof DonationRow | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const pageSize = 25
 
@@ -212,9 +221,33 @@ export default function StatsPage() {
     setShowExportDropdown(false)
   }
 
+  // Sort donations if a sort column is selected
+  const sortedDonations = sortColumn
+    ? [...donations].sort((a, b) => {
+        const aValue = a[sortColumn]
+        const bValue = b[sortColumn]
+
+        // Handle null/undefined values
+        if (aValue === null || aValue === undefined) return 1
+        if (bValue === null || bValue === undefined) return -1
+
+        // Compare values
+        let comparison = 0
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          comparison = aValue.localeCompare(bValue)
+        } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+          comparison = aValue - bValue
+        } else {
+          comparison = String(aValue).localeCompare(String(bValue))
+        }
+
+        return sortDirection === 'asc' ? comparison : -comparison
+      })
+    : donations
+
   // Group donations by department for department view
   const groupedDonations = viewMode === 'department'
-    ? donations.reduce((acc, donation) => {
+    ? sortedDonations.reduce((acc, donation) => {
         if (!acc[donation.departmentName]) {
           acc[donation.departmentName] = []
         }
@@ -226,6 +259,97 @@ export default function StatsPage() {
   const handleLogout = async () => {
     await logout()
     router.push('/')
+  }
+
+  // Helper function to render sortable table headers
+  const renderSortableHeader = (column: keyof DonationRow, label: string) => (
+    <th
+      key={column}
+      className="px-4 py-3 text-left text-sm font-bold text-slate-200 cursor-pointer hover:bg-slate-600/50 transition-colors select-none"
+      onClick={() => handleSort(column)}
+    >
+      <div className="flex items-center gap-1">
+        <span>{label}</span>
+        <div className="flex flex-col">
+          <ChevronUp
+            className={`w-3 h-3 -mb-1 ${
+              sortColumn === column && sortDirection === 'asc' ? 'text-yellow-400' : 'text-slate-500'
+            }`}
+          />
+          <ChevronDown
+            className={`w-3 h-3 -mt-1 ${
+              sortColumn === column && sortDirection === 'desc' ? 'text-yellow-400' : 'text-slate-500'
+            }`}
+          />
+        </div>
+      </div>
+    </th>
+  )
+
+  const handleSort = (column: keyof DonationRow) => {
+    if (sortColumn === column) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New column - default to ascending
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
+  const handleStartEdit = (donation: DonationRow) => {
+    if (donation.donationType === 'cash' && donation.amount) {
+      setEditingDonationId(donation.id)
+      setEditedAmount(donation.amount.toFixed(2))
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingDonationId(null)
+    setEditedAmount('')
+  }
+
+  const handleSaveAmount = async (donationId: string) => {
+    if (isSaving) return
+
+    const newAmount = parseFloat(editedAmount)
+
+    if (isNaN(newAmount) || newAmount <= 0) {
+      toast.error('Please enter a valid amount')
+      return
+    }
+
+    if (newAmount < 5) {
+      toast.error('Minimum donation amount is £5')
+      return
+    }
+
+    setIsSaving(true)
+
+    const result = await updateDonationAmount(donationId, newAmount)
+
+    setIsSaving(false)
+
+    if (result.success) {
+      toast.success('Donation amount updated successfully')
+
+      // Update the local state
+      setDonations(prev => prev.map(d =>
+        d.id === donationId ? { ...d, amount: newAmount } : d
+      ))
+
+      // Clear editing state
+      setEditingDonationId(null)
+      setEditedAmount('')
+
+      // Optionally refresh stats
+      const donationStatsResult = await getDonationStats()
+      if (donationStatsResult.success) {
+        setTotalCashRaised(donationStatsResult.data.totalCashAmount)
+      }
+    } else {
+      toast.error(result.error)
+    }
   }
 
   // Show loading while checking auth
@@ -379,11 +503,11 @@ export default function StatsPage() {
                     <table className="w-full">
                       <thead className="bg-slate-700/50">
                         <tr>
-                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Child</th>
-                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donor</th>
-                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donation</th>
-                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Age</th>
-                          <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Gender</th>
+                          {renderSortableHeader('childName', 'Child')}
+                          {renderSortableHeader('donorName', 'Donor')}
+                          {renderSortableHeader('amount', 'Donation')}
+                          {renderSortableHeader('childAge', 'Age')}
+                          {renderSortableHeader('childGender', 'Gender')}
                           <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Gift Ideas</th>
                         </tr>
                       </thead>
@@ -394,9 +518,37 @@ export default function StatsPage() {
                             <td className="px-4 py-3 text-sm font-medium">{donation.donorName}</td>
                             <td className="px-4 py-3 text-sm">
                               {donation.donationType === 'cash' ? (
-                                <span className="text-green-400 font-bold">
-                                  £{donation.amount?.toFixed(2)}
-                                </span>
+                                editingDonationId === donation.id ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-green-400">£</span>
+                                    <input
+                                      type="number"
+                                      value={editedAmount}
+                                      onChange={(e) => setEditedAmount(e.target.value)}
+                                      onBlur={() => handleSaveAmount(donation.id)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          handleSaveAmount(donation.id)
+                                        } else if (e.key === 'Escape') {
+                                          handleCancelEdit()
+                                        }
+                                      }}
+                                      className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                                      step="0.01"
+                                      min="5"
+                                      autoFocus
+                                      disabled={isSaving}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span
+                                    className="text-green-400 font-bold cursor-pointer hover:text-green-300 hover:underline"
+                                    onClick={() => handleStartEdit(donation)}
+                                    title="Click to edit amount"
+                                  >
+                                    £{donation.amount?.toFixed(2)}
+                                  </span>
+                                )
                               ) : (
                                 <span className="text-blue-400 font-semibold">Gift</span>
                               )}
@@ -420,26 +572,54 @@ export default function StatsPage() {
               <table className="w-full">
                 <thead className="bg-slate-700/50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Child</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donor</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Department</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donation</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Age</th>
-                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Gender</th>
+                    {renderSortableHeader('childName', 'Child')}
+                    {renderSortableHeader('donorName', 'Donor')}
+                    {renderSortableHeader('departmentName', 'Department')}
+                    {renderSortableHeader('amount', 'Donation')}
+                    {renderSortableHeader('childAge', 'Age')}
+                    {renderSortableHeader('childGender', 'Gender')}
                     <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Gift Ideas</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700">
-                  {donations.map((donation) => (
+                  {sortedDonations.map((donation) => (
                     <tr key={donation.id} className="hover:bg-slate-700/30">
                       <td className="px-4 py-3 text-sm font-medium">{donation.childName}</td>
                       <td className="px-4 py-3 text-sm font-medium">{donation.donorName}</td>
                       <td className="px-4 py-3 text-sm font-medium">{donation.departmentName}</td>
                       <td className="px-4 py-3 text-sm">
                         {donation.donationType === 'cash' ? (
-                          <span className="text-green-400 font-bold">
-                            £{donation.amount?.toFixed(2)}
-                          </span>
+                          editingDonationId === donation.id ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-green-400">£</span>
+                              <input
+                                type="number"
+                                value={editedAmount}
+                                onChange={(e) => setEditedAmount(e.target.value)}
+                                onBlur={() => handleSaveAmount(donation.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleSaveAmount(donation.id)
+                                  } else if (e.key === 'Escape') {
+                                    handleCancelEdit()
+                                  }
+                                }}
+                                className="w-20 px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                                step="0.01"
+                                min="5"
+                                autoFocus
+                                disabled={isSaving}
+                              />
+                            </div>
+                          ) : (
+                            <span
+                              className="text-green-400 font-bold cursor-pointer hover:text-green-300 hover:underline"
+                              onClick={() => handleStartEdit(donation)}
+                              title="Click to edit amount"
+                            >
+                              £{donation.amount?.toFixed(2)}
+                            </span>
+                          )
                         ) : (
                           <span className="text-blue-400 font-semibold">Gift</span>
                         )}
@@ -618,35 +798,108 @@ export default function StatsPage() {
           className="bg-slate-800/50 backdrop-blur-sm rounded-2xl overflow-hidden"
         >
           <div className="p-4 border-b border-slate-700">
-            <h2 className="text-2xl font-bold text-yellow-400">
-              Top 10 Donors by Cash Value
-            </h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
+              <h2 className="text-2xl font-bold text-yellow-400">
+                {leaderboardMode === 'donors' && 'Top 10 Donors by Cash Value'}
+                {leaderboardMode === 'dept-cash' && 'Top Departments by Cash Donations'}
+                {leaderboardMode === 'dept-gifts' && 'Top Departments by Gift Donations'}
+              </h2>
+              {/* Leaderboard Toggle */}
+              <div className="bg-slate-800/50 backdrop-blur-sm p-1 rounded-full border border-slate-700 flex gap-1">
+                <button
+                  onClick={() => setLeaderboardMode('donors')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                    leaderboardMode === 'donors'
+                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 shadow-lg'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Top Donors
+                </button>
+                <button
+                  onClick={() => setLeaderboardMode('dept-cash')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                    leaderboardMode === 'dept-cash'
+                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 shadow-lg'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Dept (Cash)
+                </button>
+                <button
+                  onClick={() => setLeaderboardMode('dept-gifts')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                    leaderboardMode === 'dept-gifts'
+                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 shadow-lg'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Dept (Gifts)
+                </button>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-700/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">#</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donor Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Department</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Total Value</th>
-                  <th className="px-4 py-3 text-left text-sm font-bold text-slate-200"># Donations</th>
+                  {leaderboardMode === 'donors' ? (
+                    <>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Donor Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Department</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Total Value</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200"># Donations</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Department</th>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">
+                        {leaderboardMode === 'dept-cash' ? 'Cash Amount' : 'Gift Count'}
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-bold text-slate-200">Total Donations</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700">
-                {topDonors.map((donor, index) => (
-                  <tr key={donor.donorName} className="hover:bg-slate-700/30">
-                    <td className="px-4 py-3 text-sm font-bold text-yellow-400">
-                      {index + 1}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium">{donor.donorName}</td>
-                    <td className="px-4 py-3 text-sm font-medium">{donor.departmentName}</td>
-                    <td className="px-4 py-3 text-sm text-green-400 font-bold">
-                      £{donor.totalCashAmount.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium">{donor.totalDonations}</td>
-                  </tr>
-                ))}
+                {leaderboardMode === 'donors' ? (
+                  topDonors.map((donor, index) => (
+                    <tr key={donor.donorName} className="hover:bg-slate-700/30">
+                      <td className="px-4 py-3 text-sm font-bold text-yellow-400">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium">{donor.donorName}</td>
+                      <td className="px-4 py-3 text-sm font-medium">{donor.departmentName}</td>
+                      <td className="px-4 py-3 text-sm text-green-400 font-bold">
+                        £{donor.totalCashAmount.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium">{donor.totalDonations}</td>
+                    </tr>
+                  ))
+                ) : (
+                  [...departmentStats]
+                    .sort((a, b) =>
+                      leaderboardMode === 'dept-cash'
+                        ? b.totalAmount - a.totalAmount
+                        : b.giftCount - a.giftCount
+                    )
+                    .slice(0, 10)
+                    .map((dept, index) => (
+                      <tr key={dept.name} className="hover:bg-slate-700/30">
+                        <td className="px-4 py-3 text-sm font-bold text-yellow-400">
+                          {index + 1}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">{dept.name}</td>
+                        <td className="px-4 py-3 text-sm text-green-400 font-bold">
+                          {leaderboardMode === 'dept-cash'
+                            ? `£${dept.totalAmount.toFixed(2)}`
+                            : dept.giftCount}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium">{dept.donationCount}</td>
+                      </tr>
+                    ))
+                )}
               </tbody>
             </table>
           </div>

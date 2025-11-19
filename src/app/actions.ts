@@ -553,3 +553,65 @@ export async function getUnderperformingGroups(): Promise<
     }
   }
 }
+
+/**
+ * Update donation amount (for cash donations only)
+ */
+export async function updateDonationAmount(
+  donationId: string,
+  newAmount: number
+): Promise<ServerActionResult<Donation>> {
+  try {
+    // Validate amount
+    if (!newAmount || newAmount <= 0) {
+      return {
+        success: false,
+        error: 'Amount must be greater than zero.',
+      }
+    }
+
+    if (newAmount < 5) {
+      return {
+        success: false,
+        error: 'Minimum donation amount is £5.',
+      }
+    }
+
+    // Update the donation
+    const updated = await donationService.updateAmount(donationId, newAmount)
+
+    return {
+      success: true,
+      data: updated,
+    }
+  } catch (error) {
+    console.error('Error in updateDonationAmount:', error)
+
+    // Handle known errors
+    if (error instanceof Error) {
+      if (error.message.includes('Donation not found')) {
+        return {
+          success: false,
+          error: 'Donation not found.',
+        }
+      }
+      if (error.message.includes('Can only update amount for cash donations')) {
+        return {
+          success: false,
+          error: 'Can only update amount for cash donations.',
+        }
+      }
+      if (error.message.includes('Amount must be greater than zero')) {
+        return {
+          success: false,
+          error: 'Amount must be greater than zero.',
+        }
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Failed to update donation amount.',
+    }
+  }
+}
