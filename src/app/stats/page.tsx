@@ -73,10 +73,8 @@ interface TopDonor {
 export default function StatsPage() {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>('department')
-  const [currentPage, setCurrentPage] = useState(1)
   const [donations, setDonations] = useState<DonationRow[]>([])
   const [totalDonations, setTotalDonations] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
   const [genderSplit, setGenderSplit] = useState<GenderSplit | null>(null)
   const [ageGroupSplit, setAgeGroupSplit] = useState<AgeGroupSplit | null>(null)
   const [departmentStats, setDepartmentStats] = useState<DepartmentStat[]>([])
@@ -92,8 +90,6 @@ export default function StatsPage() {
   const [leaderboardMode, setLeaderboardMode] = useState<LeaderboardMode>('donors')
   const [sortColumn, setSortColumn] = useState<keyof DonationRow | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-
-  const pageSize = 25
 
   // Check authentication on mount
   useEffect(() => {
@@ -128,11 +124,12 @@ export default function StatsPage() {
 
       const sortBy = viewMode === 'department' ? 'department' : 'date'
 
+      // Load all donations at once (no pagination) for better sorting across all records
       const [donationsResult, genderResult, ageResult, deptResult, topDonorsResult, donationStatsResult, progressResult] =
         await Promise.all([
           getAllDonationsWithDetails({
-            page: currentPage,
-            pageSize,
+            page: 1,
+            pageSize: 10000, // Load all donations
             sortBy,
           }),
           getGenderSplit(),
@@ -146,7 +143,6 @@ export default function StatsPage() {
       if (donationsResult.success) {
         setDonations(donationsResult.data.donations)
         setTotalDonations(donationsResult.data.total)
-        setTotalPages(donationsResult.data.totalPages)
       }
 
       if (genderResult.success) {
@@ -177,7 +173,7 @@ export default function StatsPage() {
     }
 
     fetchData()
-  }, [currentPage, viewMode])
+  }, [viewMode])
 
   // Export to CSV
   const exportToCSV = (filterType: 'gift' | 'cash') => {
@@ -407,10 +403,7 @@ export default function StatsPage() {
           {/* Pill Toggle */}
           <div className="bg-slate-800/50 backdrop-blur-sm p-1.5 rounded-full border border-slate-700 flex gap-1">
             <button
-              onClick={() => {
-                setViewMode('department')
-                setCurrentPage(1)
-              }}
+              onClick={() => setViewMode('department')}
               className={`px-6 py-2.5 rounded-full font-bold transition-all duration-300 ${
                 viewMode === 'department'
                   ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 shadow-lg'
@@ -420,10 +413,7 @@ export default function StatsPage() {
               By Department
             </button>
             <button
-              onClick={() => {
-                setViewMode('all')
-                setCurrentPage(1)
-              }}
+              onClick={() => setViewMode('all')}
               className={`px-6 py-2.5 rounded-full font-bold transition-all duration-300 ${
                 viewMode === 'all'
                   ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-slate-900 shadow-lg'
@@ -567,8 +557,8 @@ export default function StatsPage() {
               ))}
             </div>
           ) : (
-            // Regular Table View
-            <div className="overflow-x-auto">
+            // Regular Table View - Scrollable
+            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
               <table className="w-full">
                 <thead className="bg-slate-700/50">
                   <tr>
@@ -633,29 +623,6 @@ export default function StatsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {!loading && totalPages > 1 && (
-            <div className="p-4 border-t border-slate-700 flex justify-between items-center">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-              >
-                Previous
-              </button>
-              <span className="text-slate-400">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-              >
-                Next
-              </button>
             </div>
           )}
         </motion.div>
